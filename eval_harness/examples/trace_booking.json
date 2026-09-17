@@ -1,0 +1,60 @@
+{
+  "resourceSpans": [
+    {
+      "scopeSpans": [
+        {
+          "spans": [
+            {
+              "name": "规划",
+              "startTime": 1,
+              "attributes": [
+                {
+                  "key": "input",
+                  "value": {
+                    "stringValue": "帮我订明天北京到上海的机票"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "检索航班",
+              "startTime": 2,
+              "attributes": [
+                {
+                  "key": "output",
+                  "value": {
+                    "stringValue": "找到 3 个航班"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "生成订单",
+              "startTime": 3,
+              "attributes": [
+                {
+                  "key": "output",
+                  "value": {
+                    "stringValue": "已生成订单 CA1234"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "确认",
+              "startTime": 4,
+              "attributes": [
+                {
+                  "key": "output",
+                  "value": {
+                    "stringValue": "订单已确认，依据检索结果"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

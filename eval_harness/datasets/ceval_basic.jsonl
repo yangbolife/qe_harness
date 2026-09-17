@@ -1,0 +1,30 @@
+{"id": "CEV-01", "input": "中国的首都是哪里？\nA) 上海  B) 北京  C) 广州  D) 深圳", "gold": "B", "category": "常识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-02", "input": "1 加 1 等于几？\nA) 1  B) 2  C) 3  D) 0", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-03", "input": "长江是中国第几长河？\nA) 第一  B) 第二  C) 第三  D) 第四", "gold": "A", "category": "地理", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-04", "input": "水的化学式是？\nA) CO2  B) H2O  C) O2  D) NaCl", "gold": "B", "category": "化学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-05", "input": "太阳从哪个方向升起？\nA) 西  B) 东  C) 南  D) 北", "gold": "B", "category": "常识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-06", "input": "一年有多少个月？\nA) 10  B) 11  C) 12  D) 13", "gold": "C", "category": "常识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-07", "input": "下列哪一项不属于中国古代四大发明？\nA) 造纸术  B) 指南针  C) 火药  D) 蒸汽机", "gold": "D", "category": "历史", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-08", "input": "圆周率 π 约等于？\nA) 2.14  B) 3.14  C) 4.14  D) 1.14", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-09", "input": "最小的正整数是？\nA) 0  B) 1  C) 2  D) -1", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-10", "input": "北京奥运会是在哪一年举办的？\nA) 2004  B) 2008  C) 2012  D) 2016", "gold": "B", "category": "历史", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-11", "input": "光在真空中的传播速度约为？\nA) 3×10^5 km/s  B) 3×10^8 m/s  C) 3×10^3 m/s  D) 3×10^6 m/s", "gold": "B", "category": "物理", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-12", "input": "中国的国宝动物是？\nA) 大熊猫  B) 东北虎  C) 亚洲象  D) 金丝猴", "gold": "A", "category": "常识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-13", "input": "《红楼梦》的作者是？\nA) 施耐庵  B) 曹雪芹  C) 罗贯中  D) 吴承恩", "gold": "B", "category": "文学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-14", "input": "人体面积最大的器官是？\nA) 心脏  B) 肝脏  C) 皮肤  D) 肺", "gold": "C", "category": "生物", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-15", "input": "长江发源于？\nA) 青藏高原  B) 云贵高原  C) 黄土高原  D) 内蒙古高原", "gold": "A", "category": "地理", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-16", "input": "一个直角是多少度？\nA) 45  B) 90  C) 180  D) 360", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-17", "input": "被称为「诗仙」的唐代诗人是？\nA) 杜甫  B) 李白  C) 白居易  D) 王维", "gold": "B", "category": "文学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-18", "input": "中国目前设有几个特别行政区？\nA) 1 个  B) 2 个  C) 3 个  D) 4 个", "gold": "B", "category": "常识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-19", "input": "5 乘以 6 等于？\nA) 24  B) 30  C) 36  D) 28", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-20", "input": "月球绕着什么天体运行？\nA) 太阳  B) 地球  C) 火星  D) 木星", "gold": "B", "category": "天文", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-21", "input": "计算机中央处理器的英文简称是？\nA) GPU  B) CPU  C) ROM  D) RAM", "gold": "B", "category": "计算机", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-22", "input": "举世闻名的中国古代防御工程是？\nA) 罗马城墙  B) 中国长城  C) 君士坦丁堡城墙  D) 巴比伦城", "gold": "B", "category": "历史", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-23", "input": "100 以内最大的质数是？\nA) 97  B) 99  C) 91  D) 95", "gold": "A", "category": "数学", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-24", "input": "一打（dozen）等于多少个？\nA) 10  B) 12  C) 20  D) 24", "gold": "B", "category": "常识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-25", "input": "中国陆地面积最大的省级行政区是？\nA) 新疆  B) 西藏  C) 内蒙古  D) 青海", "gold": "A", "category": "地理", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-26", "input": "2 的 10 次方等于？\nA) 512  B) 1024  C) 2048  D) 1000", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-27", "input": "三角形三个内角和是多少度？\nA) 90  B) 180  C) 270  D) 360", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-28", "input": "被称为「万园之园」的是？\nA) 颐和园  B) 圆明园  C) 拙政园  D) 留园", "gold": "B", "category": "历史", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-29", "input": "下列哪一项是哺乳动物？\nA) 鲨鱼  B) 鲸  C) 鳄鱼  D) 乌龟", "gold": "B", "category": "生物", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "CEV-30", "input": "1 公里等于多少米？\nA) 10  B) 100  C) 1000  D) 10000", "gold": "C", "category": "常识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}

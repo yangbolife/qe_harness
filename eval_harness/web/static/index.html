@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>智化融合评测 Harness 控制台</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <!-- 侧边栏 -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">⚙︎</div>
+        <div class="brand-text">
+          <div class="brand-name">评测 Harness</div>
+          <div class="brand-sub">智化融合 · 控制台</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard"><span class="ico">◧</span>概览</button>
+        <button class="nav-item" data-view="runs"><span class="ico">▤</span>评测运行</button>
+        <button class="nav-item" data-view="traces"><span class="ico">⤳</span>生产轨迹</button>
+        <button class="nav-item" data-view="casesets"><span class="ico">❏</span>用例集</button>
+        <button class="nav-item" data-view="dashboards"><span class="ico">▦</span>看板</button>
+        <button class="nav-item" data-view="new"><span class="ico">＋</span>新建评测</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="pill" id="backend-badge">—</div>
+        <div class="pill ghost" id="ver-badge">v—</div>
+      </div>
+    </aside>
+
+    <!-- 主内容 -->
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <h1 id="view-title">概览</h1>
+          <p id="view-sub" class="sub">交付验收全景</p>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn ghost" id="refresh-btn">↻ 刷新</button>
+        </div>
+      </header>
+
+      <!-- 概览 -->
+      <section id="view-dashboard" class="view">
+        <div class="kpi-grid" id="kpi-grid"></div>
+        <div class="card-grid">
+          <div class="card chart-card">
+            <div class="card-head"><h3>通过率趋势</h3><span class="hint">按时间升序</span></div>
+            <canvas id="chart-trend" height="220"></canvas>
+          </div>
+          <div class="card chart-card">
+            <div class="card-head"><h3>脚手架三通道解耦</h3><span class="hint">创新③</span></div>
+            <canvas id="chart-threeway" height="220"></canvas>
+          </div>
+          <div class="card chart-card">
+            <div class="card-head"><h3>评分器构成</h3><span class="hint">通道分布</span></div>
+            <canvas id="chart-graders" height="220"></canvas>
+          </div>
+        </div>
+        <div class="card" id="threeway-readout">
+          <div class="card-head"><h3>三方解耦读数</h3></div>
+          <div class="readout" id="readout-body"><span class="muted">暂无含三通道解耦的运行。</span></div>
+        </div>
+      </section>
+
+      <!-- 运行列表 -->
+      <section id="view-runs" class="view hidden">
+        <div class="card">
+          <div class="card-head">
+            <h3>评测运行</h3>
+            <input id="run-search" class="search" placeholder="搜索名称 / 模型 / 提供方…" />
+          </div>
+          <div class="table-wrap">
+            <table class="tbl" id="runs-table">
+              <thead>
+                <tr><th>名称</th><th>提供方</th><th>模型版本</th><th>通过率</th><th>题数</th><th>inconclusive</th><th>三通道</th><th>时间</th></tr>
+              </thead>
+              <tbody id="runs-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 生产轨迹 -->
+      <section id="view-traces" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h3>生产轨迹回灌</h3><span class="hint">创新⑥ · 上线真实轨迹复评</span></div>
+          <div class="table-wrap">
+            <table class="tbl" id="traces-table">
+              <thead><tr><th>#</th><th>来源</th><th>步骤数</th><th>时间</th><th></th></tr></thead>
+              <tbody id="traces-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 用例集 -->
+      <section id="view-casesets" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h3>用例集版本钉</h3><span class="hint">创新④ · 数据集版本哈希</span></div>
+          <div class="table-wrap">
+            <table class="tbl" id="cs-table">
+              <thead><tr><th>名称</th><th>版本</th><th>哈希</th><th>来源</th></tr></thead>
+              <tbody id="cs-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 自定义看板 -->
+      <section id="view-dashboards" class="view hidden">
+        <div class="card">
+          <div class="card-head">
+            <h3>自定义看板</h3><span class="hint">N7 · 保存你自己的指标视图</span>
+            <button class="btn primary" id="dash-new-btn" style="margin-left:auto">＋ 新建看板</button>
+          </div>
+          <div class="kpi-grid" id="dashboards-list"></div>
+        </div>
+
+        <!-- 看板构建器 -->
+        <div class="card form-card hidden" id="dash-builder">
+          <div class="card-head"><h3>构建看板</h3></div>
+          <div class="field"><label>看板名称</label><input id="dash-name" class="control" placeholder="如：周报看板" /></div>
+          <div id="dash-widgets"></div>
+          <button class="btn ghost" id="dash-add-widget">＋ 添加组件</button>
+          <div class="form-actions">
+            <button class="btn primary" id="dash-save-btn">保存看板</button>
+            <button class="btn ghost" id="dash-cancel-btn">取消</button>
+            <span id="dash-status" class="muted"></span>
+          </div>
+        </div>
+
+        <!-- 看板渲染 -->
+        <div class="card hidden" id="dash-render-card">
+          <div class="card-head"><h3 id="dash-render-title">看板</h3>
+            <button class="btn ghost" id="dash-back-btn" style="margin-left:auto">← 返回列表</button></div>
+          <div class="kpi-grid" id="dash-kpis"></div>
+          <div class="card-grid" id="dash-charts"></div>
+          <div class="table-wrap hidden" id="dash-sql-wrap"><table class="tbl" id="dash-sql-table"></table></div>
+        </div>
+      </section>
+
+      <!-- 新建评测 -->
+      <section id="view-new" class="view hidden">
+        <div class="card form-card">
+          <div class="card-head"><h3>发起一次评测</h3><span class="hint">复用 engine.run_suite_async，结果自动落库</span></div>
+          <form id="new-eval-form" class="form">
+            <div class="field">
+              <label>用例集</label>
+              <select id="f-suite" class="control"></select>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>执行提供方</label>
+                <select id="f-provider" class="control">
+                  <option value="mock">mock（零成本）</option>
+                  <option value="deepseek">deepseek</option>
+                  <option value="local_agent">local_agent（本地/自建 HTTP 靶机，默认 :9000/chat）</option>
+                  <option value="openai">openai（OpenAI 兼容，key 读 OPENAI_API_KEY）</option>
+                  <option value="qwen">qwen（通义，key 读 DASHSCOPE_API_KEY）</option>
+                  <option value="zhipu">zhipu（智谱，key 读 ZHIPU_API_KEY）</option>
+                  <option value="domestic_gateway">domestic_gateway（国内网关·加权轮询+故障转移）</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>mock 模式</label>
+                <select id="f-mode" class="control">
+                  <option value="full">full（混合对错）</option>
+                  <option value="all_pass">all_pass</option>
+                  <option value="all_fail">all_fail</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>Judge 通道</label>
+                <select id="f-judge" class="control">
+                  <option value="">不启用</option>
+                  <option value="deepseek">deepseek（需 DEEPSEEK_API_KEY）</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>评分器组合</label>
+                <select id="f-grader" class="control">
+                  <option value="code,judge">code,judge</option>
+                  <option value="judge">judge</option>
+                  <option value="code">code</option>
+                  <option value="trajectory">trajectory</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>Trials (k)</label>
+                <input id="f-trials" class="control" type="number" value="3" min="1" max="20" />
+              </div>
+              <div class="field">
+                <label>聚合策略</label>
+                <select id="f-policy" class="control">
+                  <option value="any">any（一次过即过）</option>
+                  <option value="all">all（全过才过）</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="field">
+                <label>模型版本钉</label>
+                <input id="f-model" class="control" value="deepseek-chat" />
+              </div>
+              <div class="field">
+                <label>数据集版本钉</label>
+                <input id="f-dataset" class="control" value="manual" />
+              </div>
+            </div>
+            <label class="check"><input id="f-threeway" type="checkbox" checked /> 启用脚手架三通道解耦（创新③）</label>
+            <div class="field-block" style="margin-top:14px;border-top:1px dashed var(--line);padding-top:14px">
+              <div class="block-label">工作台回链（可选）</div>
+              <p class="hint" style="margin:4px 0 10px">若本次评测由质擎智评工作台发起，填入验收单 URL 与验收单 ID，运行详情页将提供「返回工作台」一键回链。</p>
+              <div class="row">
+                <div class="field">
+                  <label>验收单回链 URL</label>
+                  <input id="f-wb-callback" class="control" placeholder="http://127.0.0.1:8000/evaluations/... 或 /contracts/..." />
+                </div>
+                <div class="field">
+                  <label>关联验收单 ID</label>
+                  <input id="f-wb-contract" class="control" placeholder="工作台合同/验收单 id" />
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn primary" id="run-btn">▶ 启动评测</button>
+              <span id="run-status" class="muted"></span>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>在途任务</h3><span class="hint">后台执行进度</span></div>
+          <div id="jobs-body" class="readout"><span class="muted">暂无在途任务。</span></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 运行详情抽屉 -->
+  <div id="drawer" class="drawer hidden">
+    <div class="drawer-mask" id="drawer-mask"></div>
+    <div class="drawer-panel">
+      <div class="drawer-head">
+        <h2 id="drawer-title">运行详情</h2>
+        <button class="btn ghost" id="drawer-close">✕</button>
+      </div>
+      <div id="drawer-body" class="drawer-body"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+{"question":"用一句话介绍你自己。","gold":"智能体","category":"自检"}
+{"question":"1+1 等于几？","gold":"2","category":"常识"}
+{"question":"把“你好世界”翻译成英文。","gold":"Hello","category":"翻译"}
+{"question":"列出三种常见的排序算法。","gold":"快速排序","category":"知识"}
+{"question":"北京到上海的高铁大概要多久？","gold":"4到6小时","category":"常识"}

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eval_harness"
+version = "0.4.0"
+description = "QualEngine Eval Harness — open-source evaluation for LLM/Agent systems, with focus on the integration-contract layer (交界层)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "QualEngine (质擎智评)" }]
+keywords = ["llm", "agent", "evaluation", "benchmark", "testing", "quality", "pass@k"]
+dependencies = [
+    "sqlalchemy>=2.0",
+    "aiosqlite",
+    "asyncpg",
+    "httpx",
+    "pydantic",
+]
+
+[project.optional-dependencies]
+web = ["fastapi", "uvicorn"]
+redis = ["redis"]
+s3 = ["boto3"]
+openai = ["openai"]
+dev = ["pytest", "pytest-asyncio"]
+
+[project.scripts]
+eval_harness = "eval_harness.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["eval_harness*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["eval_harness/tests"]

@@ -1,0 +1,40 @@
+{"id": "MMLU-01", "input": "What is the capital of France?\nA) Paris  B) London  C) Rome  D) Berlin", "gold": "A", "category": "知识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-02", "input": "Which planet is known as the Red Planet?\nA) Venus  B) Mars  C) Jupiter  D) Saturn", "gold": "B", "category": "知识", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-03", "input": "What is the chemical symbol for gold?\nA) Au  B) Ag  C) Go  D) Gd", "gold": "A", "category": "化学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-04", "input": "Who wrote the play Romeo and Juliet?\nA) Dickens  B) Shakespeare  C) Milton  D) Chaucer", "gold": "B", "category": "文学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-05", "input": "What is the approximate speed of light in vacuum?\nA) 3e8 m/s  B) 3e5 m/s  C) 3e10 m/s  D) 3e3 m/s", "gold": "A", "category": "物理", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-06", "input": "Which organelle is the powerhouse of the cell?\nA) Nucleus  B) Ribosome  C) Mitochondria  D) Golgi", "gold": "C", "category": "生物", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-07", "input": "Which gas is most abundant in Earth's atmosphere?\nA) Oxygen  B) Nitrogen  C) CO2  D) Argon", "gold": "B", "category": "化学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-08", "input": "What is 2 to the power of 10?\nA) 1000  B) 1024  C) 2048  D) 512", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-09", "input": "What is the first element on the periodic table?\nA) Helium  B) Hydrogen  C) Lithium  D) Carbon", "gold": "B", "category": "化学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-10", "input": "What is the square root of 144?\nA) 11  B) 12  C) 13  D) 14", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-11", "input": "Who painted the Mona Lisa?\nA) Van Gogh  B) Da Vinci  C) Picasso  D) Rembrandt", "gold": "B", "category": "艺术", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-12", "input": "What is the largest ocean on Earth?\nA) Atlantic  B) Indian  C) Pacific  D) Arctic", "gold": "C", "category": "地理", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-13", "input": "In which year did World War II end?\nA) 1943  B) 1945  C) 1947  D) 1950", "gold": "B", "category": "历史", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-14", "input": "What is the freezing point of water in Celsius?\nA) 0  B) 32  C) 100  D) -1", "gold": "A", "category": "物理", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-15", "input": "Which organ pumps blood through the body?\nA) Liver  B) Heart  C) Kidney  D) Lung", "gold": "B", "category": "生物", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-16", "input": "What is the hardest known natural material?\nA) Gold  B) Iron  C) Diamond  D) Quartz", "gold": "C", "category": "物理", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-17", "input": "What is the capital of Japan?\nA) Osaka  B) Tokyo  C) Kyoto  D) Nagoya", "gold": "B", "category": "地理", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-18", "input": "How many continents are there on Earth?\nA) 5  B) 6  C) 7  D) 8", "gold": "C", "category": "地理", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-19", "input": "What is the pH of pure water at 25C?\nA) 0  B) 7  C) 14  D) 1", "gold": "B", "category": "化学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-20", "input": "Who discovered penicillin?\nA) Pasteur  B) Fleming  C) Curie  D) Lister", "gold": "B", "category": "生物", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-21", "input": "Which of these is a prime number?\nA) 9  B) 15  C) 17  D) 21", "gold": "C", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-22", "input": "What is the boiling point of water at sea level in Celsius?\nA) 90  B) 100  C) 110  D) 80", "gold": "B", "category": "物理", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-23", "input": "By what process do plants make their own food?\nA) Respiration  B) Photosynthesis  C) Digestion  D) Fermentation", "gold": "B", "category": "生物", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-24", "input": "What is the capital of Italy?\nA) Milan  B) Rome  C) Venice  D) Naples", "gold": "B", "category": "地理", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-25", "input": "How many sides does a hexagon have?\nA) 5  B) 6  C) 7  D) 8", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-26", "input": "What is the largest planet in the solar system?\nA) Earth  B) Saturn  C) Jupiter  D) Neptune", "gold": "C", "category": "天文", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-27", "input": "Which gas do plants absorb from the atmosphere?\nA) Oxygen  B) Nitrogen  C) CO2  D) Hydrogen", "gold": "C", "category": "生物", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-28", "input": "What is 15 multiplied by 4?\nA) 45  B) 60  C) 50  D) 65", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-29", "input": "Which blood cells fight infection?\nA) Red  B) White  C) Platelets  D) Plasma", "gold": "B", "category": "生物", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-30", "input": "What is the nearest star to Earth?\nA) Sirius  B) The Sun  C) Proxima Centauri  D) Polaris", "gold": "B", "category": "天文", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-31", "input": "What is the chemical formula of water?\nA) CO2  B) H2O  C) O2  D) NaCl", "gold": "B", "category": "化学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-32", "input": "Who was the first President of the United States?\nA) Adams  B) Washington  C) Jefferson  D) Lincoln", "gold": "B", "category": "历史", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-33", "input": "What is the approximate speed of sound in air?\nA) 340 m/s  B) 3400 m/s  C) 34 m/s  D) 34000 m/s", "gold": "A", "category": "物理", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-34", "input": "What is the smallest prime number?\nA) 0  B) 1  C) 2  D) 3", "gold": "C", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-35", "input": "What is 100 divided by 4?\nA) 20  B) 25  C) 30  D) 40", "gold": "B", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-36", "input": "The scientific study of stars and celestial objects is called?\nA) Geology  B) Astronomy  C) Biology  D) Chemistry", "gold": "B", "category": "天文", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-37", "input": "What is the capital of Germany?\nA) Munich  B) Berlin  C) Frankfurt  D) Hamburg", "gold": "B", "category": "地理", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-38", "input": "How many legs does a spider have?\nA) 6  B) 8  C) 10  D) 4", "gold": "B", "category": "生物", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-39", "input": "What is the main element the Sun is made of?\nA) Oxygen  B) Hydrogen  C) Helium  D) Carbon", "gold": "B", "category": "天文", "difficulty": "medium", "suite": "benchmark", "grader": "code"}
+{"id": "MMLU-40", "input": "Which language has the most native speakers?\nA) English  B) Mandarin Chinese  C) Spanish  D) Hindi", "gold": "B", "category": "语言", "difficulty": "medium", "suite": "benchmark", "grader": "code"}

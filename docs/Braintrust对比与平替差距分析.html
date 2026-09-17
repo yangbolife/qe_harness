@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Braintrust 全功能梳理与评测平替差距分析</title>
+<style>
+  :root{
+    --bg:#f5f5f7; --card:#ffffff; --ink:#1d1d1f; --sub:#6e6e73;
+    --line:#e3e3e8; --blue:#0071e3; --green:#1d9e4a; --amber:#c77700; --red:#c0392b;
+    --chip:#eef4ff; --soft:#f0f0f3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"SF Pro Text","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.65;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:40px 24px 80px}
+  h1{font-size:30px;font-weight:700;letter-spacing:-.5px;margin:0 0 6px}
+  h2{font-size:22px;font-weight:700;margin:42px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--line)}
+  h3{font-size:17px;font-weight:650;margin:26px 0 10px}
+  p{margin:10px 0;color:#2c2c2e}
+  .lead{color:var(--sub);font-size:15px;margin-top:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:16px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:14px 0}
+  .kpi{background:var(--soft);border-radius:12px;padding:14px 16px}
+  .kpi b{display:block;font-size:20px}
+  .kpi span{color:var(--sub);font-size:13px}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px;background:var(--card);border-radius:12px;overflow:hidden}
+  th,td{border:1px solid var(--line);padding:9px 11px;vertical-align:top;text-align:left}
+  th{background:var(--soft);font-weight:650}
+  tr:nth-child(even) td{background:#fafafc}
+  .tag{display:inline-block;font-size:12px;font-weight:650;padding:2px 9px;border-radius:999px;white-space:nowrap}
+  .t-need{background:#fdecea;color:var(--red)}
+  .t-opt{background:#fff4e0;color:var(--amber)}
+  .t-have{background:#e7f6ec;color:var(--green)}
+  .t-edge{background:#eaf0ff;color:var(--blue)}
+  .pri{font-weight:700}
+  .p1{color:var(--red)} .p2{color:var(--amber)} .p3{color:var(--blue)} .p0{color:var(--green)}
+  ul{margin:8px 0 8px 0;padding-left:20px} li{margin:5px 0}
+  .note{background:#fff8e6;border-left:4px solid var(--amber);padding:10px 14px;border-radius:8px;margin:12px 0;font-size:14px}
+  .edge{background:#eef4ff;border-left:4px solid var(--blue);padding:10px 14px;border-radius:8px;margin:12px 0;font-size:14px}
+  code{background:#eef0f3;padding:1px 6px;border-radius:5px;font-size:13px}
+  .phase{display:flex;gap:10px;align-items:baseline;margin:18px 0 6px}
+  .phase .badge{background:var(--ink);color:#fff;font-size:12px;font-weight:700;padding:3px 10px;border-radius:8px;white-space:nowrap}
+  .check{font-size:14px}
+  .check input{transform:scale(1.2);margin-right:8px}
+  .foot{color:var(--sub);font-size:12.5px;margin-top:40px;text-align:center}
+  a{color:var(--blue);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Braintrust 全功能梳理 × 国内评测平替差距分析</h1>
+<p class="lead">基于 braintrust.dev/docs 与官方对比文章（2026-09 实测）系统梳理 Braintrust 的能力、工作流与评测机制，对照「eval_harness 引擎 + qe-platform 交付工作台」现状，输出缺口清单与建议实现顺序，供勾选落地。</p>
+
+<div class="card">
+<div class="grid">
+  <div class="kpi"><b>17</b><span>Braintrust 一级能力模块</span></div>
+  <div class="kpi"><b>5</b><span>核心工作流阶段（Instrument→Observe→Annotate→Evaluate→Deploy）</span></div>
+  <div class="kpi"><b>6</b><span>我方已实现的「超车点」创新</span></div>
+  <div class="kpi"><b>N1–N6</b><span>达到「不逊于」的必要项</span></div>
+  <div class="kpi"><b>O1–O4</b><span>实现「优于/国内可用」的差异化项</span></div>
+</div>
+</div>
+
+<h2>一、Braintrust 全功能梳理</h2>
+<p>Braintrust 定位是「AI 开发平台 / 主动式智能体可观测」，核心理念是 <b>evals 即产品设计</b>，把生产 trace 自动变成测试用例，形成「生产 → 评测 → 部署」闭环。能力按五大工作流阶段 + 支撑能力组织：</p>
+
+<h3>① Instrument（采集）</h3>
+<ul>
+  <li>多语言 SDK：Python / TypeScript / Go / Ruby / C# / Java 等</li>
+  <li>原生 OpenTelemetry 导出；适配 13+ 框架（LangChain、LangGraph、Instructor、Autogen、CrewAI、Vercel AI SDK、Cloudflare…）</li>
+  <li>全链路 Trace：LLM 调用、工具调用、应用逻辑各自成 span，记录 input/output/参数/延迟/Token/成本/metadata</li>
+</ul>
+
+<h3>② Observe（观测）</h3>
+<ul>
+  <li><b>Brainstore</b>：专为 AI trace 设计的数据库，支持百万级 trace 全文检索、快速 span 加载</li>
+  <li>实时性能监控、自定义视图、告警（Slack / Webhook）</li>
+  <li><b>Topics（自动模式发现）</b>：每日 LLM 分类流水线，内置 facet（Task 任务 / Sentiment 情感 / Issues 问题）+ 自定义 facet；散点图聚类并按占比排序；分类写回每条 trace 供过滤</li>
+  <li>Loop 自然语言调查：用 NL 追问 trace、定位问题</li>
+</ul>
+
+<h3>③ Annotate（标注 / 人工评审）</h3>
+<ul>
+  <li>对 trace / 实验 span / 数据集行 打人工分；键盘快捷键标注</li>
+  <li>项目级 rubric：Pass/Fail、分类字段、连续滑块（1–5）、自由文本备注</li>
+  <li>生产用户反馈可直接挂到 trace；标注结果成为一等信号，用于过滤与发布闸门</li>
+</ul>
+
+<h3>④ Evaluate（评测）</h3>
+<ul>
+  <li><code>Eval()</code> 函数 → 命名<b>不可变实验</b>快照；数据集版本化 + 快照</li>
+  <li><b>评分器分三类</b>：Autoevals 预置库、LLM-as-a-judge、自定义代码；另有 Classifiers（分类标签）</li>
+  <li>Autoevals 预置库（节选）：Factuality、Faithfulness、ContextPrecision/Recall/Relevancy、AnswerCorrectness/Relevancy/Similarity、JSONDiff、ValidJSON、ExactMatch、EmbeddingSimilarity、Levenshtein、Summary、Translation、ClosedQA、Battle、Humor、Possible、Security、Sql、Moderation、NumericDiff、ListContains、LLMClassifier / OpenAIClassifier，并含 RAGAS 系</li>
+  <li>评分返回 <b>0–1 连续值</b>（非硬 pass/fail），可设阈值；支持 Span 级 / Trace 级评分</li>
+  <li><b>实验对比视图</b>：两实验并排，绿升红降；metadata tag 作为过滤维度；<code>--watch</code> 热重跑；UI 免代码跑实验</li>
+  <li>一致性：<code>trial_count</code> 每输入多次试验测波动（类 pass@k 思路）</li>
+</ul>
+
+<h3>⑤ Deploy（部署 / 在线评分 / 网关）</h3>
+<ul>
+  <li><b>Online Scoring</b>：同一套评分器<b>异步</b>作用于生产 trace（不增加请求延迟），采样率可调，低分触发告警</li>
+  <li><b>AI Gateway</b>（beta 免费）：100+ 模型（OpenAI/Anthropic/Google/AWS/Mistral…）统一 OpenAI 兼容端点；响应缓存（AES-GCM，TTL≤7天，按用户隔离）；有序故障转移；项目/组织级凭证；支持 embeddings</li>
+  <li><b>Prompt / Function 管理</b>：提示与函数是一等版本化对象（slug + version pin）；<code>npx braintrust push/pull</code> 双向同步；环境（dev/staging/prod）；质量闸门阻止劣质版本晋升；即时回滚；REST 调用；Zod/Pydantic 类型、流式</li>
+</ul>
+
+<h3>支撑能力</h3>
+<ul>
+  <li><b>Loop AI Agent</b>：用自然语言生成数据集、优化提示、构建评分器、发现生产模式</li>
+  <li><b>MCP Server</b>：在 IDE 内查询日志、跑 eval、更新提示</li>
+  <li><b>CI/CD</b>：<code>braintrustdata/eval-action</code> GitHub Action，PR 评论打分摘要、阈值阻断合并；<code>Reporter()</code> 自定义阻断；<code>--first N</code> PR 冒烟</li>
+  <li><b>安全合规</b>：SOC 2 Type II、GDPR、HIPAA、SSO/SAML、细粒度 RBAC、BYOC/自托管（Terraform AWS/GCP/Azure）、审计日志（企业）</li>
+  <li><b>定价</b>：Starter 免费（1GB/1万 scores/无限用户）、Pro $249/月、Enterprise 定制</li>
+</ul>
+
+<h2>二、核心评测机制要点</h2>
+<table>
+<tr><th>机制</th><th>Braintrust 实现</th></tr>
+<tr><td>评分尺度</td><td>0–1 连续值，可设 pass/fail 阈值；分类器输出类别标签</td></tr>
+<tr><td>实验不可变性</td><td>每次 Eval 落为命名不可变快照，作基线对比、回归检测</td></tr>
+<tr><td>一致性测量</td><td><code>trial_count</code> 多次试验，跨 run 测波动（近似 pass@k）</td></tr>
+<tr><td>质量闸门</td><td>阈值可阻断 PR 合并 / 阻止 prompt 晋升到生产</td></tr>
+<tr><td>评分器复用</td><td>同一评分器在「开发 / 发布前 / 生产采样」三处复用，标准一致</td></tr>
+<tr><td>在线评分</td><td>异步作用于生产 trace，采样率可调，不增加延迟</td></tr>
+<tr><td>闭环</td><td>低分 trace 一键变数据集用例 → 下次实验回归守护 → 发布对比绿升红降</td></tr>
+</table>
+
+<h2>三、我方框架现状（eval_harness + qe-platform）</h2>
+<table>
+<tr><th>层</th><th>已实现能力</th></tr>
+<tr><td>引擎 eval_harness</td><td>插件化 Registry（GRADERS/PROVIDERS/LOADERS）；三层评分器（code→LLM-Judge→human）；async + TokenBucket + RetryPolicy + CircuitBreaker；Trial(k)→pass@k + 聚合；OTel 导出；跨进程 Worker + 队列；PostgreSQL/SQLite 双后端；Apple 风 Web 控制台（KPI/图表/运行/轨迹/用例集/新建评测）；CLI 28 参数；FastAPI REST</td></tr>
+<tr><td>六大创新</td><td>①交界层四类原子评测（契约/权限/兜底/归因）②OTel 轨迹归因 ③脚手架三方解耦（bare/harness/full + gain/leak）④动态 curated 产题 + 版本钉 ⑤Judge 三通道隔离 + 成本闸门 ⑥生产 trace 回灌闭环</td></tr>
+<tr><td>交付工作台 qe-platform</td><td>FastAPI+React19 单仓；RBAC v2（6 档×14 能力单一事实来源）；7 阶段 SOP（需求接入→边界卡→方案Rubric→测试执行→缺陷定级→里程碑门禁→签字交付）；PG 库队列合一；Web/Worker 分离；77 路由/19 表；边界卡 + 门禁 + 签字盖章；探针门禁</td></tr>
+</table>
+
+<h2>四、差距分析矩阵</h2>
+<table>
+<tr><th>Braintrust 能力</th><th>我方状态</th><th>缺口</th><th>分级</th><th>优先级</th></tr>
+<tr><td>多语言/OTel 采集 SDK、框架适配</td><td>仅 OTel 导出 + 手动 <code>parse_trace_to_case</code> 回灌 JSON</td><td>无自动抓取任意 App 的 LLM/tool span 的 SDK</td><td><span class="tag t-need">必要</span></td><td class="pri p1">N5</td></tr>
+<tr><td>预置评测器库（autoevals）</td><td>仅有 code/judge/human + 交界层/轨迹，无电池内置评分器集</td><td>缺 Factuality/Faithfulness/ValidJSON/ExactMatch/EmbeddingSimilarity/ContextP-R 等</td><td><span class="tag t-need">必要</span></td><td class="pri p1">N1</td></tr>
+<tr><td>人工评审 UI + rubric</td><td>human 评分通道在后端，无标注队列/键盘打分/项目级 rubric</td><td>缺标注工作台与 rubric 配置</td><td><span class="tag t-need">必要</span></td><td class="pri p1">N2</td></tr>
+<tr><td>实验对比视图（并排 diff / tag 过滤）</td><td>运行已持久化 + 详情抽屉，无两 run 对比与 metadata 过滤</td><td>缺对比视图与过滤维度</td><td><span class="tag t-need">必要</span></td><td class="pri p1">N3</td></tr>
+<tr><td>CI/CD 质量闸门（原生 Action / Reporter）</td><td>CLI 有退出码可手接 CI，无原生 Action / PR 评论 / Reporter</td><td>缺原生 CI 集成与阻断</td><td><span class="tag t-need">必要</span></td><td class="pri p1">N4</td></tr>
+<tr><td>Span 级 / Trace 级评分 + 分类器类型</td><td>轨迹评分在全轨迹，无 Span 级细粒度、无 Classifier 类型</td><td>缺 Span 级评分与分类器</td><td><span class="tag t-need">必要</span></td><td class="pri p2">N6</td></tr>
+<tr><td>AI Gateway（多模型路由/缓存/故障转移）</td><td>Provider 抽象仅按 run 配置，无网关服务</td><td>缺统一端点、缓存、故障转移</td><td><span class="tag t-opt">差异化</span></td><td class="pri p2">O1</td></tr>
+<tr><td>企业合规与 SSO（等保/信创/国内 IdP）</td><td>qe-platform 有 RBAC v2；无 SSO、无等保/信创映射</td><td>缺国内合规与 IdP 集成</td><td><span class="tag t-opt">差异化</span></td><td class="pri p2">O2</td></tr>
+<tr><td>Online Scoring + 告警</td><td>创新⑥为按需回灌评测，非持续异步采样 + 告警</td><td>缺持续采样与告警钩子</td><td><span class="tag t-opt">差异化</span></td><td class="pri p2">O3</td></tr>
+<tr><td>Prompt/Function 版本化对象 + push/pull</td><td>仅 run 级版本钉（harness/model/dataset），无提示对象注册与双向同步</td><td>缺提示/函数对象注册与回滚</td><td><span class="tag t-opt">可选</span></td><td class="pri p3">O4</td></tr>
+<tr><td>Loop 式 AI 助理（NL 生成评测资产）</td><td>创新④ generator 已能动态产题，无完整 Loop</td><td>部分覆盖（产题），缺 NL 优化提示/评分器</td><td><span class="tag t-opt">可选</span></td><td class="pri p3">O5</td></tr>
+<tr><td>Topics 式自动模式发现</td><td>无 trace 聚类/自定义 facet/散点</td><td>缺自动聚类与模式发现</td><td><span class="tag t-opt">可选</span></td><td class="pri p3">O6</td></tr>
+<tr><td>MCP Server（IDE 集成）</td><td>无</td><td>缺 IDE 集成入口</td><td><span class="tag t-opt">可选</span></td><td class="pri p3">O7</td></tr>
+<tr><td>Playground 免代码提示迭代</td><td>qe-platform 有向导式配置，无交互式提示 playground + diff 分享</td><td>缺交互式 playground</td><td><span class="tag t-opt">可选</span></td><td class="pri p3">O8</td></tr>
+<tr><td>Brainstore 级专用 trace 库</td><td>PG 持久化可用，未做专用海量检索优化</td><td>视规模再定</td><td><span class="tag t-opt">可选</span></td><td class="pri p3">O9</td></tr>
+</table>
+
+<div class="edge">
+<b>我方相对 Braintrust 的 6 个超车点（应作为主诉卖点）：</b>
+<ol>
+<li><b>交界层四类原子评测</b>（契约/权限/兜底/归因）—— Braintrust 无此概念，这是「智化融合系统交付验收」差异化内核。</li>
+<li><b>三方解耦</b>（bare/harness/full 通过率 + harness_only_gain + scaffold_leakage）—— Braintrust 无法区分「壳帮了还是脚手架漏了」。</li>
+<li><b>轨迹归因</b>—— 不仅给 trace 打分，更定位失败由哪一步 span 引起。</li>
+<li><b>Judge 三通道隔离 + 成本闸门</b>—— LLM 裁判成本可预算、可熔断。</li>
+<li><b>版本钉 provenance</b>—— harness/model/dataset 三重版本绑定，结果可复现。</li>
+<li><b>国内合规 / 信创 / 等保 + 中文业务 Rubric 定制</b>—— Braintrust 的 SOC2/GDPR/HIPAA 体系对国内政企不对口，这是「国内可用、优于」的战略支点。</li>
+</ol>
+</div>
+
+<h2>五、待确认清单（分阶段 · 建议实现顺序 · 可勾选）</h2>
+
+<div class="phase"><span class="badge">Phase 0</span><b>已达 / 超车（仅补文档与演示，不写代码）</b></div>
+<ul class="check">
+<li><input type="checkbox"> 交界层四类原子评测（contract/permission/fallback/attribution）</li>
+<li><input type="checkbox"> 三方解耦（bare/harness/full + gain/leak）</li>
+<li><input type="checkbox"> 轨迹归因 + Judge 三通道隔离/成本闸门 + 版本钉</li>
+<li><input type="checkbox"> 双后端持久化 + Apple 风 Web 控制台 + qe-platform RBAC v2</li>
+</ul>
+
+<div class="phase"><span class="badge">Phase 1</span><b>必要项：做到「不逊于」（先启动）</b></div>
+<ul class="check">
+<li><input type="checkbox"> <b>N1</b> 预置评测器库（autoevals 平替：Factuality / Faithfulness / ValidJSON / ExactMatch / EmbeddingSimilarity / Levenshtein / ContextP-R + RAGAS 类）</li>
+<li><input type="checkbox"> <b>N2</b> 人工评审 UI 与项目级 rubric（标注队列 / 键盘打分 / Pass-Fail·分类·滑块·文本）</li>
+<li><input type="checkbox"> <b>N3</b> 实验对比视图（两 run 并排 diff 绿升红降 + metadata tag 过滤维度）</li>
+<li><input type="checkbox"> <b>N4</b> CI/CD 质量闸门（GitHub Action / 原生 CI 集成 / PR 评论 / 阈值阻断 / Reporter）</li>
+<li><input type="checkbox"> <b>N5</b> 多语言 / OTel 采集 SDK（自动抓取任意 App 的 LLM/tool span，不止手动 JSON 回灌）</li>
+<li><input type="checkbox"> <b>N6</b> 评分器分类器类型 + Span 级 / Trace 级评分</li>
+</ul>
+
+<div class="phase"><span class="badge">Phase 2</span><b>差异化：实现「优于 / 国内可用」（并行启动）</b></div>
+<ul class="check">
+<li><input type="checkbox"> <b>O1</b> AI 网关（国内模型路由：智谱/通义/DeepSeek/豆包/文心/混元 + 缓存 + 故障转移）—— 国内可用战略支点</li>
+<li><input type="checkbox"> <b>O2</b> 企业合规与 SSO（等保2.0 / 信创 / 数据不出境；企业微信·钉钉·飞书 SSO；审计日志）</li>
+<li><input type="checkbox"> <b>O3</b> 在线评分 + 告警（异步采样生产 trace + 飞书/Slack/Webhook 告警）</li>
+<li><input type="checkbox"> <b>O4</b> Prompt/Function 版本化对象 + push/pull + 环境 + 回滚</li>
+</ul>
+
+<div class="phase"><span class="badge">Phase 3</span><b>可选增强（远期超车锦上添花）</b></div>
+<ul class="check">
+<li><input type="checkbox"> <b>O5</b> Loop 式 AI 助理（NL 生成数据集/评分器/提示；generator 已部分覆盖）</li>
+<li><input type="checkbox"> <b>O6</b> Topics 式自动模式发现（trace 聚类 + 自定义 facet + 散点）</li>
+<li><input type="checkbox"> <b>O7</b> MCP Server（IDE 集成）</li>
+<li><input type="checkbox"> <b>O8</b> Playground 免代码提示迭代（diff 分享）</li>
+<li><input type="checkbox"> <b>O9</b> Brainstore 级专用 trace 库（海量检索性能优化）</li>
+</ul>
+
+<div class="note">
+<b>建议路线：</b>Phase 1（N1–N6）是「不逊于」的硬门槛，建议按 <b>N1 → N6 → N3 → N2 → N4 → N5</b> 顺序推进（先补齐评分器与评分模型这一评测内核，再做对比/人工/CI，采集 SDK 放最后因其依赖前序稳定）；<b>O1 / O2 与 Phase 1 并行</b>，因为它们是「国内可用、优于」的超车点而非单纯的追平项。
+</div>
+
+<h2>六、边栏功能覆盖核对与遗漏项（2026-09-17 补充）</h2>
+<p>以 Braintrust 产品主页左侧导航的 <b>15 个一级条目</b>为清单，逐条核对上一轮是否已分析。结论：<b>已覆盖 10 条 / 覆盖薄弱 1 条 / 遗漏 4 条</b>；另有截图外但产品实际存在、上一轮未提的能力，一并列出。</p>
+
+<h3>6.1 逐条覆盖核对</h3>
+<table>
+<thead><tr><th style="width:13%">边栏条目</th><th style="width:41%">功能实质（官方口径）</th><th style="width:14%">上一轮覆盖</th><th style="width:32%">结论</th></tr></thead>
+<tbody>
+<tr><td><b>Overview</b></td><td>项目级聚合首页：近况、健康度、快捷入口</td><td><span class="tag t-have">已覆盖</span></td><td>我方 Web 控制台「概览」已等价，<b>无需立项</b></td></tr>
+<tr><td><b>Logs</b></td><td>trace/span 检索主界面：百万级全文检索（prompt/错误消息）、任意字段筛选、自定义列与保存视图、<b>时间线视图</b>（token 分布：未缓存输入/缓存读/缓存写/输出 + 缓存命中率）、<b>thread view</b>（多轮会话拼接）、附件渲染、一键 Add to dataset、导出云存储</td><td><span class="tag t-opt">覆盖薄弱</span></td><td>上一轮仅在 Observe 阶段一句带过。检索/筛选/转数据集是硬需求 → <b>拆出 N10</b>；时间线与会话视图归可选</td></tr>
+<tr><td><b>Dashboards</b></td><td>2026 由原 Monitoring views 升级：独立页面 + 项目级列表（可搜索/星标）、可从空白或内置「Cost and quality」看板起步、卡片自由增删、过滤/分组/图表改动自动保存、支持<b>自定义 measure</b>（含 per-trace 平均）</td><td><span class="tag t-need">遗漏</span></td><td>我方仅固定 3 张图 + KPI 卡，无自定义看板 → <b>新增 N7</b></td></tr>
+<tr><td><b>Patterns</b></td><td>Loop <b>定时</b>自动调查 traces，产出「复发问题/趋势」＝一条<b>带证据的发现</b>（摘要 + 建议修复 + 支持 trace 清单 + 监控图），可关闭（resolved / not useful，结论回流为 Loop 的判断反馈），可一键转 scorer / classifier / facet</td><td><span class="tag t-need">遗漏</span></td><td>上一轮只提 Topics。两者是两层：Topics 广而廉（每条 trace 打分类），Patterns 深而准（挑可疑的深挖）→ <b>新增 O12</b></td></tr>
+<tr><td><b>Topics</b></td><td>每日 LLM 分类流水线 + 内置/自定义 facet，分类写回每条 trace 供过滤与 SQL 查询</td><td><span class="tag t-have">已覆盖</span></td><td>已列 O6</td></tr>
+<tr><td><b>Review</b></td><td>人工评审队列：键盘打分、项目级 rubric（Pass-Fail/分类/滑块/文本）、按行或按用户分派评审人、评论</td><td><span class="tag t-have">已覆盖</span></td><td>已列 N2，但漏了一个关键机制 → 见 6.3 <b>盲评</b></td></tr>
+<tr><td><b>Playgrounds</b></td><td>免代码提示迭代：多模型并排、参数试验、PDF 附件、挂载 tools、可保存为 experiment</td><td><span class="tag t-have">已覆盖</span></td><td>已列 O8</td></tr>
+<tr><td><b>Experiments</b></td><td>命名的<b>不可变</b>实验快照 + 数据集版本、并排对比（绿升红降）、trial_count 一致性、base_experiment 基线、<b>git metadata 自动采集</b>、按 commit SHA 建实验、Summary table 布局 + 导出 PDF</td><td><span class="tag t-have">已覆盖</span></td><td>已列 ④ Evaluate / N3；<b>git metadata 建议补入 N3</b>（可复现性）</td></tr>
+<tr><td><b>Datasets</b></td><td>版本化数据集、从日志一键添加、schema 配置、<b>快照/检查点</b>（命名保存、前后差异对比、回滚）</td><td><span class="tag t-have">已覆盖</span></td><td>已列 ④ / 创新⑥；数据集快照归可选（O17）</td></tr>
+<tr><td><b>Prompts</b></td><td>提示＝一等版本化对象（slug + version pin），push/pull 双向同步、环境（dev/staging/prod）、质量闸门阻止劣质晋升、即时回滚、REST 调用</td><td><span class="tag t-have">已覆盖</span></td><td>已列 O4</td></tr>
+<tr><td><b>Scorers</b></td><td>自定义 + LLM 裁判 + 代码评分器，0–1 连续分与 pass 阈值，可作为对象部署与版本化</td><td><span class="tag t-have">已覆盖</span></td><td>已列 N1</td></tr>
+<tr><td><b>Parameters</b></td><td>评测套件的<b>运行时参数</b>：schema 化定义（Zod/Pydantic），UI 可填/可覆盖，透传给远程评测任务或 prompt 模板变量（SDK 侧 <code>EvalParameters</code> / <code>loadParameters()</code>）</td><td><span class="tag t-need">遗漏</span></td><td>用途＝同一套核换配置跑矩阵（参数敏感性/配置对比） → <b>新增 N8</b></td></tr>
+<tr><td><b>Tools</b></td><td>把函数<b>部署为 LLM 可调用的工具</b>：托管在隔离 serverless 环境（专属 VPC，无内部访问）、REST/SDK/UI 可调用、UI 可直接测试、可挂进 prompt；<b>任何 function 都能当 tool 用</b>（prompt/scorer/workflow 可组合）</td><td><span class="tag t-need">遗漏</span></td><td>对评测平台＝<b>工具级评测</b>（评测 agent 的工具调用正确性/参数合法性） → <b>新增 O10</b></td></tr>
+<tr><td><b>SQL sandbox</b></td><td><b>用 SQL/BTQL 查 logs / experiments / datasets</b>：沙箱内保存查询（侧栏命名、搜索、拖拽排序、复制、复制分享链接）、<code>bt sql</code> CLI、REST API、Loop 用自然语言生成查询；支持 TABLESAMPLE / ROLLUP / GROUPING SETS 等；<b>审计日志同样用 SQL 查（<code>audit_logs()</code>）</b></td><td><span class="tag t-need">遗漏</span></td><td>上一轮漏掉「按任意口径出数」的能力 → <b>新增 N9</b></td></tr>
+<tr><td><b>Loop</b></td><td>AI 助理：自然语言生成数据集/优化提示/构建评分器/调查生产问题，可创建与编辑 prompts、scorers、datasets、facets、自定义视图、看板、自动化</td><td><span class="tag t-have">已覆盖</span></td><td>已列 O5</td></tr>
+</tbody>
+</table>
+
+<h3>6.2 截图之外、产品实际存在但上一轮未提的能力</h3>
+<table>
+<thead><tr><th style="width:22%">能力</th><th style="width:48%">实质</th><th style="width:30%">与我方关系</th></tr></thead>
+<tbody>
+<tr><td>远程 / 沙箱评测<br><span style="color:var(--sub);font-size:12.5px">Remote eval + Sandboxed evals</span></td><td>评测代码 push 一次，团队在 UI/playground 里免本地环境按需运行复杂 agent（AWS Lambda / Modal 容器，支持 Python 与 TS）</td><td>契合我方「多供应商拆包协作」场景 → 新增 <b>O11</b></td></tr>
+<tr><td>Debugger / Analyze trace</td><td>对<b>单条</b> trace 判定可能的失败模式并<b>引用证据 span</b>；另把一次 run 分成 Work sections 解释「做了什么」（而非「哪里错了」）</td><td>我方创新②轨迹归因的加强版 → 可选 <b>O15</b></td></tr>
+<tr><td>导出与保留</td><td>导出到云存储的自动化（S3/GCS、Hive 分区布局、start-from/rewind 增量游标）+ 日志保留策略（可按项目批量下发）</td><td>交付数据的<b>出库与归档</b>能力 → 并入 <b>N10</b></td></tr>
+<tr><td>成本与额度</td><td>token 预算配置（<code>token_budget_config</code>，按用户 / API key 维度设预算）+ 组织级模型额度</td><td>我方 Judge 成本闸门的自然延伸 → 新增 <b>O13</b></td></tr>
+<tr><td>测试框架集成</td><td>pytest / Vitest / Node.js test runner 官方插件；评测框架集成（Harbor）</td><td>把门禁下沉到开发者日常；你本人在用 pytest 与 lm-eval，ROI 最高 → 新增 <b>N11</b></td></tr>
+<tr><td>CLI 产品面</td><td><code>bt eval</code> / <code>bt sql</code> / <code>bt push</code>（对象同步）/ <code>bt trace setup·run·import</code> / <code>bt auth</code> / dev 模式</td><td>我方有 CLI 但缺 push 与 trace 子命令 → 新增 <b>O14</b></td></tr>
+<tr><td>权限组与细粒度 ACL</td><td>权限组对象模型、项目级/资源级访问控制、service account、组织级 AI provider 权限</td><td>并入 <b>N12</b>，与 O2 一起做</td></tr>
+<tr><td>多模态附件</td><td>PDF / 图片作为附件进 prompt 与 playground，日志可按附件筛选、附件渲染</td><td>可选 <b>O16</b></td></tr>
+<tr><td>自定义 Trace 视图</td><td>用代码定义标注界面（不同团队标注不同形态数据），无需写前端；需 create prompt 权限</td><td>可选 <b>O17</b>（N2 的加强版）</td></tr>
+</tbody>
+</table>
+
+<h3>6.3 补充待确认清单（勾选后可并入实施）</h3>
+
+<div class="phase"><span class="badge">P1.5</span><b>必要补漏：不补则能力有缺口</b></div>
+<ul class="check">
+<li><input type="checkbox"> <b>N7</b> 自定义看板（Dashboards）—— 可克隆/可保存/自定义卡片与 measure 的监控看板。<span style="color:var(--sub)">我方现仅固定 3 图；甲方交付汇报与质量趋势都靠它。</span></li>
+<li><input type="checkbox"> <b>N8</b> 评测参数（Parameters）—— schema 化参数 + UI 可填 + 透传评测任务 / prompt 变量。<span style="color:var(--sub)">业务 Rubric 参数化、配置矩阵与敏感性测试。</span></li>
+<li><input type="checkbox"> <b>N9</b> 数据查询层（SQL）—— SQL over traces/experiments/datasets + 保存查询 + 分享链接 + CLI/API。<span style="color:var(--sub)">任意口径出数的底座，甲方自定义统计只能靠它。</span></li>
+<li><input type="checkbox"> <b>N10</b> 日志检索与数据出库 —— 全文检索 + 自定义列/保存视图 + 一键转数据集 + 对象存储导出（Hive 分区）+ 保留策略。<span style="color:var(--sub)">海量 trace 可检索、可归档是「可交付」前置。</span></li>
+<li><input type="checkbox"> <b>N11</b> 测试框架集成与外部评测框架 loader —— pytest / Vitest / Node 插件 + lm-eval 等 loader。<span style="color:var(--sub)">门禁下沉到日常；与你现有 pytest / lm-eval 工作流直接打通。</span></li>
+<li><input type="checkbox"> <b>N12</b> 权限组与细粒度 ACL + 服务账号 —— 项目级/资源级权限组、service account、provider 权限、只读/导出权限模型。<span style="color:var(--sub)">与 O2 同批做，企业交付必需。</span></li>
+</ul>
+
+<div class="phase"><span class="badge">P2</span><b>差异化补漏：实现「优于 / 更贴国内交付」</b></div>
+<ul class="check">
+<li><input type="checkbox"> <b>O10</b> 工具注册与托管执行（Tools 一等对象）—— 函数→工具、隔离执行、可挂 prompt、可直调。<span style="color:var(--sub)">支撑工具级评测（调用正确性 / 参数合法性）。</span></li>
+<li><input type="checkbox"> <b>O11</b> 远程 / 沙箱评测 —— 评测代码 push 一次，UI 免本地环境按需运行。<span style="color:var(--sub)">多供应商拆包协作时，甲方无需装环境即可复跑。</span></li>
+<li><input type="checkbox"> <b>O12</b> Patterns 式自动问题发现 —— 定时调查 → 带证据的发现 → 一键转 scorer / facet / monitor。<span style="color:var(--sub)">与 O6（Topics）互补：广覆盖 + 深调查。</span></li>
+<li><input type="checkbox"> <b>O13</b> Token / 成本预算体系 —— 按用户 / 密钥 / 项目维度的预算配额与超额告警。<span style="color:var(--sub)">现有 Judge 成本闸门的扩展。</span></li>
+<li><input type="checkbox"> <b>O14</b> CLI 补全 —— push（对象同步）/ trace（采集）/ sql（查询）子命令 + dev 模式。<span style="color:var(--sub)">低成本，直接提升可用性。</span></li>
+</ul>
+
+<div class="phase"><span class="badge">P3</span><b>可选增强：远期锦上添花</b></div>
+<ul class="check">
+<li><input type="checkbox"> <b>O15</b> Debugger / Analyze trace —— 单 trace 失败模式判定（引用证据 span）+ run 的工作分解。</li>
+<li><input type="checkbox"> <b>O16</b> 多模态附件 —— PDF / 图片进 prompt 与 playground + 渲染与筛选。</li>
+<li><input type="checkbox"> <b>O17</b> 自定义 Trace 视图 + 数据集快照 / 回滚。</li>
+</ul>
+
+<div class="edge">
+<b>两个应并入既有项的关键增强：</b>
+<br>① <b>N2 加「盲评」（Blind review）</b> —— Braintrust 默认隐藏他人打分/评论/聚合，直到评审人自己打完，可选全流程隐藏以保持独立性。这一点与「第三方独立交付验收」的定位高度契合，价值高于界面本身。
+<br>② <b>N3 加「git metadata 自动采集」</b> —— commit / branch / dirty / repo_info 随实验自动记录，可按 SHA 建实验；是版本钉 provenance 的补齐（我方现只有 harness/model/dataset 三钉，缺代码版本钉）。
+</div>
+
+<h2>七、结论</h2>
+<p>我方在<b>评测正确性维度（交界层 / 三方解耦 / 轨迹归因 / 成本闸门 / 版本钉）</b>已领先 Braintrust，且<b>国内合规与信创</b>是 Braintrust 的天然短板。要成为「至少不逊于且优于」的平替，关键不是照搬 Braintrust 的全部观测/网关功能，而是：<b>先补齐评测内核的必要项（N1–N6）达到能力对等，再用品类差异点（交界层验收 + 国内合规 + 国内模型网关）实现超车。</b></p>
+
+<div class="foot">分析基准：braintrust.dev/docs 与官方对比文章（2026-09-17 实测）· 我方栈：eval_harness（引擎 v0.4.0）+ qe-platform（交付工作台）· 本文为待确认清单，勾选后进入实施。</div>
+
+</div>
+</body>
+</html>

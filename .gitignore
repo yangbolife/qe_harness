@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+*.egg
+
+# Virtual env
+.venv/
+venv/
+env/
+
+# Test / sandbox artifacts
+.pytest_cache/
+.pytest_tmp/
+.tmptest/
+.tmptest*/
+.pytest_tmp*/
+.pip_tmp2/
+
+# Databases (local dev)
+*.db
+*.sqlite
+*.sqlite3
+eval_harness.db
+
+# OS
+.DS_Store
+.AppleDouble
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+
+# Secrets (never commit)
+.env
+.env.*
+*.secret
+*credential*
+
+# Node (web console build, if any)
+node_modules/

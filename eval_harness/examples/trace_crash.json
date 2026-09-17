@@ -1,0 +1,48 @@
+{
+  "resourceSpans": [
+    {
+      "scopeSpans": [
+        {
+          "spans": [
+            {
+              "name": "规划",
+              "startTime": 1,
+              "attributes": [
+                {
+                  "key": "input",
+                  "value": {
+                    "stringValue": "查询账户余额"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "调用银行API",
+              "startTime": 2,
+              "attributes": [
+                {
+                  "key": "output",
+                  "value": {
+                    "stringValue": "Exception: timeout"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "返回",
+              "startTime": 3,
+              "attributes": [
+                {
+                  "key": "output",
+                  "value": {
+                    "stringValue": "未返回余额"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

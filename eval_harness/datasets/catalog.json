@@ -1,0 +1,1417 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "Phase 2 · 数据集扩容：基础/进阶/深度三档补齐 + 行业垂直 + 集成风险面与多智能体自研集",
+  "description": "评测引擎可预置开源评测数据集注册表。tier=分级(基础/进阶/深度/专家)，status 由引擎运行时计算(ready/env/planned)。耗时/token 为模型相关估算值，真实跑后回写校准。recommends_judge=该集需配 judge 模型才能评分。",
+  "tiers": {
+    "basic": "基础：通用能力基线，单轮、轻量、零外部依赖，适合交付验收 quick check。",
+    "advanced": "进阶：引入安全/集成风险面、RAG 等，开始贴近「智化融合系统」差异化视角。",
+    "deep": "深度：垂直领域/复杂能力（法律、RAG 评测、工具调用），对业务正确性要求更高。",
+    "expert": "专家(环境)：需代码沙箱/浏览器/VM/外部 API 的真实 agent 环境，重活，仅元数据占位。"
+  },
+  "datasets": [
+    {
+      "id": "agieval-basic",
+      "name": "AGIEval（中国标准化考试·基础子集）",
+      "tier": "basic",
+      "category": "通用大模型 / 应试能力（中国标准化考试）",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "single_turn_qa",
+        "reasoning",
+        "china_specific"
+      ],
+      "description": "以中国高考、公务员考试、法考等真实标准化试题为底的能力基准，考察「人类考试语境」下的推理与知识运用。",
+      "source": "Zhong et al. 2023 · arXiv:2304.06364 · microsoft/AGIEval",
+      "official_url": "https://github.com/microsoft/AGIEval",
+      "aligned_to": "AGIEval",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0 (数据集本身 2023)",
+      "updated": "2023-04",
+      "data_format": "JSONL (harness Case, MCQ)",
+      "recommended_grader": "code(exact/contains)",
+      "suite_file": "agieval_basic.jsonl",
+      "cases_count": 10,
+      "full_scale": "约 8,000+ 题（多考试体系）",
+      "est_duration_min": 2,
+      "est_tokens": 4000,
+      "languages": [
+        "zh",
+        "en"
+      ],
+      "scenario": "中国考试语境的应试能力位：政企客户内部模型选型时最容易建立共识的评测口径，可商用。",
+      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 fetch。",
+      "sample_note": "本地构造 10 题代表性样本（高考数学/物理/化学/生物/英语、公务员判断推理与常识、法考刑法），非官方原始数据。",
+      "recommends_judge": false,
+      "source_kind": "hf_dataset",
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "arc-basic",
+      "name": "ARC（科学推理·基础子集）",
+      "tier": "basic",
+      "category": "通用大模型 / 科学推理",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "scientific_reasoning",
+        "knowledge"
+      ],
+      "description": "中小学科学常识推理基准（ARC-Challenge），测多步科学推理与因果判断，比纯知识题更贴近「会不会推理」。",
+      "source": "Clark et al. 2018 · arXiv:1803.05457 · allenai/ai2_arc",
+      "official_url": "https://huggingface.co/datasets/allenai/ai2_arc",
+      "aligned_to": "ARC-Challenge",
+      "license": "CC-BY-SA-4.0",
+      "commercial_use": true,
+      "version": "v1.0 (数据集本身 2018)",
+      "updated": "2018-03",
+      "data_format": "JSONL (harness Case, MCQ)",
+      "recommended_grader": "code(exact/contains)",
+      "suite_file": "arc_basic.jsonl",
+      "cases_count": 10,
+      "full_scale": "约 7,787 题（其中 Challenge 1,172 题）",
+      "est_duration_min": 2,
+      "est_tokens": 4000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "科学推理入门位：交付验收里「这个模型会不会做题之外的思考」的轻量判据，可商用。",
+      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 tools/fetch_datasets.py --only arc-basic --force。",
+      "sample_note": "本地构造 10 题代表性样本（结构对齐 ARC 四选一，覆盖物理/化学/生物/天文/地球科学），非官方原始数据；联网主机可替换为官方抽样。",
+      "recommends_judge": false,
+      "source_kind": "hf_dataset",
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "ceval-basic",
+      "name": "C-Eval（中文·基础抽样）",
+      "tier": "basic",
+      "category": "通用大模型 / 单轮问答·知识（中文）",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "single_turn_qa",
+        "knowledge"
+      ],
+      "description": "中文通识与学科四选一基准（52 学科），测量中文知识能力。",
+      "source": "Huang et al. 2023 · arXiv:2305.08322 · cevalex/C-Eval",
+      "official_url": "https://huggingface.co/datasets/cevalex/C-Eval",
+      "license": "Apache-2.0",
+      "commercial_use": true,
+      "version": "v1.0 (数据集本身 2023)",
+      "updated": "2023-05",
+      "data_format": "JSONL (harness Case, MCQ)",
+      "recommended_grader": "code(exact/contains)",
+      "suite_file": "ceval_basic.jsonl",
+      "cases_count": 30,
+      "full_scale": "约 13,948 题 / 52 学科",
+      "est_duration_min": 3,
+      "est_tokens": 9000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "中文通识能力基线，与 MMLU 配合覆盖中英双语 quick check。",
+      "access": "联网主机运行 tools/fetch_datasets.py 拉取官方抽样替换本样本；当前为本地构造的代表性样本。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 30 题代表性样本（结构对齐 C-Eval 四选一），非官方原始数据；fetch 可替换。",
+      "recommends_judge": false
+    },
+    {
+      "id": "cmmlu-basic",
+      "name": "CMMLU（中文综合·基础子集）",
+      "tier": "basic",
+      "category": "通用大模型 / 单轮问答·知识（中文·中国特定知识）",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "single_turn_qa",
+        "knowledge",
+        "china_specific"
+      ],
+      "description": "中文综合能力基准，含大量中国特有的历史、地理、法律与文化知识——外文模型最易翻车的部分。",
+      "source": "Li et al. 2023 · arXiv:2306.09212 · hails/CMMLU",
+      "official_url": "https://huggingface.co/datasets/hails/CMMLU",
+      "aligned_to": "CMMLU",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (数据集本身 2023)",
+      "updated": "2023-06",
+      "data_format": "JSONL (harness Case, MCQ)",
+      "recommended_grader": "code(exact/contains)",
+      "suite_file": "cmmlu_basic.jsonl",
+      "cases_count": 10,
+      "full_scale": "约 11,000 题 / 67 学科",
+      "est_duration_min": 2,
+      "est_tokens": 4000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "面向中国客户的必测项：中文语境下的「中国特定知识」正确性，与 C-Eval 互补。",
+      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 fetch。许可待确认，商用前须法务确认。",
+      "sample_note": "本地构造 10 题代表性样本（宪法/民法/婚龄/地理/历史/传统文化等中国特定知识四选一），非官方原始数据。",
+      "recommends_judge": false,
+      "source_kind": "hf_dataset",
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "gsm8k-basic",
+      "name": "GSM8K（数学应用题·基础抽样）",
+      "tier": "basic",
+      "category": "通用大模型 / 数学推理",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "math_reasoning",
+        "single_turn_qa"
+      ],
+      "description": "小学水平数学应用题基准，测量多步算术推理能力。",
+      "source": "Cobbe et al. 2021 · arXiv:2110.14168 · openai/gsm8k",
+      "official_url": "https://huggingface.co/datasets/openai/gsm8k",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0 (数据集本身 2021)",
+      "updated": "2021-10",
+      "data_format": "JSONL (harness Case, 数值答案)",
+      "recommended_grader": "code(contains, 数值核心匹配)",
+      "suite_file": "gsm8k_basic.jsonl",
+      "cases_count": 25,
+      "full_scale": "约 8,500 题（训练 7.5k / 测试 1.3k）",
+      "est_duration_min": 3,
+      "est_tokens": 15000,
+      "languages": [
+        "en",
+        "zh"
+      ],
+      "scenario": "多步数学/数值推理基线；适合检验模型在结构化计算上的正确性。",
+      "access": "联网主机运行 tools/fetch_datasets.py 拉取官方抽样替换本样本；当前为本地构造的代表性样本。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 25 题代表性样本（结构对齐 GSM8K 数值答案），非官方原始数据；fetch 可替换。",
+      "recommends_judge": false
+    },
+    {
+      "id": "math-basic",
+      "name": "MATH（竞赛数学·基础子集）",
+      "tier": "basic",
+      "category": "通用大模型 / 数学推理",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "math_reasoning",
+        "single_turn_qa"
+      ],
+      "description": "竞赛级数学题基准，比 GSM8K 难度更高，测严格的多步符号推理与最终答案精确性。",
+      "source": "Hendrycks et al. 2021 · arXiv:2103.03874 · hendrycks/competition_math",
+      "official_url": "https://huggingface.co/datasets/hendrycks/competition_math",
+      "aligned_to": "MATH",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0 (数据集本身 2021)",
+      "updated": "2021-03",
+      "data_format": "JSONL (harness Case, 数值/符号答案)",
+      "recommended_grader": "code(contains, 数值核心匹配)",
+      "suite_file": "math_basic.jsonl",
+      "cases_count": 10,
+      "full_scale": "约 12,500 题（含 7 个学科子集）",
+      "est_duration_min": 3,
+      "est_tokens": 8000,
+      "languages": [
+        "en",
+        "zh"
+      ],
+      "scenario": "数学推理进阶位：与 GSM8K 形成梯度（小学→竞赛），用于区分「会算」与「会推理」，可商用。",
+      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 fetch。",
+      "sample_note": "本地构造 10 题代表性样本（数列/代数/概率/立体几何/对数），答案为唯一数值，已逐题核对，非官方原始数据。",
+      "recommends_judge": false,
+      "source_kind": "hf_dataset",
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "mmlu-en-basic",
+      "name": "MMLU（英文·基础抽样）",
+      "tier": "basic",
+      "category": "通用大模型 / 单轮问答·知识",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "single_turn_qa",
+        "knowledge"
+      ],
+      "description": "英文四选一通识知识基准（57 学科），测量大模型知识广度。",
+      "source": "Hendrycks et al. 2021 · arXiv:2009.03300 · cais/mmlu",
+      "official_url": "https://huggingface.co/datasets/cais/mmlu",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0 (数据集本身 2021)",
+      "updated": "2021-09",
+      "data_format": "JSONL (harness Case, MCQ)",
+      "recommended_grader": "code(exact/contains)",
+      "suite_file": "mmlu_en_basic.jsonl",
+      "cases_count": 40,
+      "full_scale": "约 15,900 题 / 57 学科",
+      "est_duration_min": 4,
+      "est_tokens": 12000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "通用大模型知识广度基线；交付验收的轻量能力 quick check，零依赖、秒级出报告。",
+      "access": "联网主机运行 tools/fetch_datasets.py 拉取官方抽样替换本样本；当前为本地构造的代表性样本。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 40 题代表性样本（结构对齐 MMLU 四选一），非官方原始数据；fetch 可替换为官方抽样。",
+      "recommends_judge": false
+    },
+    {
+      "id": "agentharm-advanced",
+      "name": "AgentHarm（Agent 安全·进阶子集）",
+      "tier": "advanced",
+      "category": "特定用途智能体 / 安全（有害行为）",
+      "object_axes": [
+        "safety_agent"
+      ],
+      "dimensions": [
+        "safety",
+        "harmful_agent_behavior"
+      ],
+      "description": "衡量 Agent 拒绝执行有害多步任务的能力（越狱/有害工具调用）。",
+      "source": "Andriushchenko & Flammarion 2024 · arXiv:2410.09024 · UK AI Safety Institute",
+      "official_url": "https://huggingface.co/datasets/ai-safety-institute/AgentHarm",
+      "license": "研究用途（非商用需确认）",
+      "commercial_use": false,
+      "version": "v1.0",
+      "updated": "2024-10",
+      "data_format": "JSONL (harness Case, grader=permission/attribution)",
+      "recommended_grader": "permission,attribution",
+      "suite_file": "agentharm_advanced.jsonl",
+      "cases_count": 15,
+      "full_scale": "约 400+ 有害任务（11 类）",
+      "est_duration_min": 8,
+      "est_tokens": 30000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "高安要求场景（金融/政企）的安全基线；注意许可仅限研究，商用前需法务确认。",
+      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 tools/fetch_datasets.py --only agentharm-advanced --sample 100 --force（研究用途许可，商用前须法务确认）。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 15 题代表性样本，覆盖 11 类有害请求（恶意软件/欺诈/骚扰/非法药物/虚假信息/网络攻击/物理危害/自残/版权/伪造/舆论操纵），gold 为合规拒绝回答，对应 permission 评分器。非官方原始数据；联网主机跑 fetch --only agentharm-advanced --force 可替换为官方抽样（许可需先确认）。",
+      "sample_built": "2026-09-17",
+      "recommends_judge": false
+    },
+    {
+      "id": "consistency-advanced",
+      "name": "跨环境一致性（自研·进阶）",
+      "tier": "advanced",
+      "category": "智化融合系统 / 差异化空白·跨环境一致性",
+      "object_axes": [
+        "integration_risk"
+      ],
+      "dimensions": [
+        "consistency",
+        "multi_turn",
+        "environment"
+      ],
+      "description": "验收「同一个 Agent 换个环境/换一轮对话，答案会不会变」：配置口径冲突、跨轮约束保持、单位归一、时区归一、指标口径、版本漂移、跨轮数值自洽、命名口径共 8 类。",
+      "source": "本项目自研（本项目点名的四项市场空白之一）",
+      "official_url": "qe-platform 交界层原子评测器扩展",
+      "aligned_to": "本项目自定义（公开数据集无对应基准）",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=sandbox 结构化断言)",
+      "recommended_grader": "sandbox",
+      "suite_file": "consistency_advanced.jsonl",
+      "cases_count": 8,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 4,
+      "est_tokens": 16000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "公开 benchmark 完全覆盖不到的空白：同一问题在 dev/prod、不同文档版本、不同轮次下给出互相矛盾的结论，正是「内层说答案对、外层说接口通、谁都不认」的根因之一。",
+      "access": "已随仓库预置可跑样本（grader=sandbox，纯本地判分）。",
+      "source_kind": "internal",
+      "sample_note": "本地构造 8 题，每题给出互相冲突的两个来源，要求输出 canonical_value/source/conflict_detected 后断言其采用当前生效口径并显式标注冲突。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "idempotency-advanced",
+      "name": "幂等与重试安全（自研·进阶）",
+      "tier": "advanced",
+      "category": "智化融合系统 / 集成风险面·幂等与并发",
+      "object_axes": [
+        "integration_risk"
+      ],
+      "dimensions": [
+        "safety",
+        "idempotency",
+        "reliability"
+      ],
+      "description": "验收「重复与并发会不会造成重复扣款/重复副作用」：重复提交、误判重复、超时重试、乐观锁冲突、重复消费、幂等键过期、Saga 部分失败、跨服务重试共 8 类。",
+      "source": "本项目自研（业界幂等与分布式事务工程实践）",
+      "official_url": "qe-platform 交界层原子评测器扩展",
+      "aligned_to": "分布式系统幂等性工程实践",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=sandbox 结构化断言)",
+      "recommended_grader": "sandbox",
+      "suite_file": "idempotency_advanced.jsonl",
+      "cases_count": 8,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 4,
+      "est_tokens": 16000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "确定性软件壳与 Agent 交界处最容易出钱的故障面：Agent 决定「重试还是跳过」时判错，直接造成重复扣款或丢单。判分要求输出结构化 decision 字段后断言，客观可复现。",
+      "access": "已随仓库预置可跑样本（grader=sandbox，纯本地判分）。",
+      "source_kind": "internal",
+      "sample_note": "本地构造 8 题，每题要求输出含 decision/reason_code 的 JSON，check_code 断言决策取值正确（如重复键必须 skip、结果未知必须 reconcile）。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "injection-advanced",
+      "name": "提示注入抵抗（自研·进阶）",
+      "tier": "advanced",
+      "category": "智化融合系统 / 集成风险面·提示注入",
+      "object_axes": [
+        "integration_risk"
+      ],
+      "dimensions": [
+        "safety",
+        "prompt_injection",
+        "input_trust"
+      ],
+      "description": "验收「输入侧不可信」：当网页、检索资料、工具返回或用户输入夹带指令时，Agent 能否坚持原任务而不被劫持。",
+      "source": "本项目自研（对齐 OWASP Top 10 for LLM Applications · LLM01 Prompt Injection）",
+      "official_url": "https://owasp.org/www-project-top-10-for-large-language-model-applications/",
+      "aligned_to": "OWASP LLM01 · Garak",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=permission)",
+      "recommended_grader": "permission",
+      "suite_file": "injection_advanced.jsonl",
+      "cases_count": 10,
+      "full_scale": "可随项目扩展（按注入载体 × 目标动作矩阵）",
+      "est_duration_min": 5,
+      "est_tokens": 20000,
+      "languages": [
+        "zh",
+        "en"
+      ],
+      "scenario": "交界层核心风险面之一：Agent 接外部内容就会被注入，这是「外壳接口通、内核被带走」最典型的翻车方式。覆盖指令覆盖、间接注入、RAG 投毒、权限提升、编码绕过、语言切换、伪 system 标签、续写攻击、SQL 注入、数据内嵌指令共 10 类载体。",
+      "access": "已随仓库预置可跑样本（grader=permission，确定性判分，无需 judge 模型）。",
+      "source_kind": "internal",
+      "sample_note": "本地构造 10 题，每题标注 injection_type 与对应的 denied_tools；gold 为「识别注入 + 拒绝执行 + 回到原任务」的合规回复。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "integration-attribution",
+      "name": "集成风险面·责任归属",
+      "tier": "advanced",
+      "category": "智化融合系统 / 集成风险面·责任归属",
+      "object_axes": [
+        "integration_risk"
+      ],
+      "dimensions": [
+        "safety",
+        "responsibility_attribution"
+      ],
+      "description": "检验结论是否标注依据/来源，且无不可核实的绝对断言（争议定责用）。",
+      "source": "本项目 qe-platform 集成风险面探针（自研）",
+      "official_url": "qe-platform 交界层四类原子评测器",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=attribution)",
+      "recommended_grader": "attribution",
+      "suite_file": "integration_attribution.jsonl",
+      "cases_count": 3,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 1,
+      "est_tokens": 600,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "验收「责任归属」——出事能否追溯依据；争议定责/交付问责必备。",
+      "access": "已随仓库预置（examples/integration_attribution.jsonl）。",
+      "source_kind": "internal",
+      "recommends_judge": false
+    },
+    {
+      "id": "integration-contract",
+      "name": "集成风险面·输出契约",
+      "tier": "advanced",
+      "category": "智化融合系统 / 集成风险面·输出契约",
+      "object_axes": [
+        "integration_risk"
+      ],
+      "dimensions": [
+        "safety",
+        "output_contract"
+      ],
+      "description": "检验 Agent 输出是否为合法 JSON 且命中声明 schema（required + 类型）。",
+      "source": "本项目 qe-platform 集成风险面探针（自研）",
+      "official_url": "qe-platform 交界层四类原子评测器",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=contract)",
+      "recommended_grader": "contract",
+      "suite_file": "integration_contract.jsonl",
+      "cases_count": 3,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 1,
+      "est_tokens": 600,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "验收「输出契约」——下游消费方能否稳定解析 Agent 输出；接口对接前必查。",
+      "access": "已随仓库预置（examples/integration_contract.jsonl）。",
+      "source_kind": "internal",
+      "recommends_judge": false
+    },
+    {
+      "id": "integration-fallback",
+      "name": "集成风险面·失效兜底",
+      "tier": "advanced",
+      "category": "智化融合系统 / 集成风险面·失效兜底",
+      "object_axes": [
+        "integration_risk"
+      ],
+      "dimensions": [
+        "safety",
+        "failure_fallback"
+      ],
+      "description": "检验下游服务失败时 Agent 是否优雅降级（无崩溃信号）。",
+      "source": "本项目 qe-platform 集成风险面探针（自研）",
+      "official_url": "qe-platform 交界层四类原子评测器",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=fallback)",
+      "recommended_grader": "fallback",
+      "suite_file": "integration_fallback.jsonl",
+      "cases_count": 3,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 1,
+      "est_tokens": 600,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "验收「失效兜底」——依赖宕机时 Agent 是否体面失败而非崩溃。",
+      "access": "已随仓库预置（examples/integration_fallback.jsonl）。",
+      "source_kind": "internal",
+      "recommends_judge": false
+    },
+    {
+      "id": "integration-permission",
+      "name": "集成风险面·权限边界",
+      "tier": "advanced",
+      "category": "智化融合系统 / 集成风险面·权限边界",
+      "object_axes": [
+        "integration_risk"
+      ],
+      "dimensions": [
+        "safety",
+        "permission_boundary"
+      ],
+      "description": "检验 Agent 是否拒绝越权工具调用（如删库/rm -rf）。本项目差异化核心场景之一。",
+      "source": "本项目 qe-platform 集成风险面探针（自研）",
+      "official_url": "qe-platform 交界层四类原子评测器",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=permission)",
+      "recommended_grader": "permission",
+      "suite_file": "integration_permission.jsonl",
+      "cases_count": 3,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 1,
+      "est_tokens": 600,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "验收「权限边界」——Agent 在越权请求下是否正确拒绝；交付验收门禁必备。",
+      "access": "已随仓库预置（examples/integration_permission.jsonl）。",
+      "source_kind": "internal",
+      "recommends_judge": false
+    },
+    {
+      "id": "jailbreak-advanced",
+      "name": "越狱抵抗（自研·进阶）",
+      "tier": "advanced",
+      "category": "智化融合系统 / 安全·越狱与绕过",
+      "object_axes": [
+        "safety_agent"
+      ],
+      "dimensions": [
+        "safety",
+        "jailbreak_resistance"
+      ],
+      "description": "验收「安全策略能否被话术绕过」：人格覆盖、虚构包装、逐步诱导、权威冒充、学术名义、激将、编码混淆、多轮铺垫、情感操纵、伪造授权。",
+      "source": "本项目自研（对齐 HarmBench / JailbreakBench / AdvBench 的攻击手法分类）",
+      "official_url": "https://github.com/centerforaisafety/HarmBench",
+      "aligned_to": "HarmBench · JailbreakBench · AdvBench",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=permission)",
+      "recommended_grader": "permission",
+      "suite_file": "jailbreak_advanced.jsonl",
+      "cases_count": 10,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 5,
+      "est_tokens": 20000,
+      "languages": [
+        "zh",
+        "en"
+      ],
+      "scenario": "与提示注入互补：注入是「被外部内容带偏」，越狱是「被话术说服」。高安要求场景（金融/政企）上线的安全基线。",
+      "access": "已随仓库预置可跑样本（grader=permission，确定性判分，无需 judge 模型）。",
+      "source_kind": "internal",
+      "sample_note": "本地构造 10 题，每题标注 jailbreak_type；请求本身以抽象方式描述，不含任何可操作的有害细节，gold 均为合规拒绝。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "pii-advanced",
+      "name": "PII 保护与脱敏（自研·进阶）",
+      "tier": "advanced",
+      "category": "智化融合系统 / 集成风险面·隐私保护",
+      "object_axes": [
+        "integration_risk"
+      ],
+      "dimensions": [
+        "safety",
+        "privacy",
+        "deidentification"
+      ],
+      "description": "验收「Agent 处理含个人信息的数据时会不会泄露」：工单摘要、日志、纪要外发、简历初筛、病历摘要、训练数据入库、出境传输、对外回复共 8 个真实落地场景。",
+      "source": "本项目自研（对齐《个人信息保护法》最小必要原则与去标识化要求）",
+      "official_url": "https://www.gov.cn/xinwen/2021-08/20/content_5632486.htm",
+      "aligned_to": "个人信息保护法 · 去标识化",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=sandbox 结构化断言)",
+      "recommended_grader": "sandbox",
+      "suite_file": "pii_advanced.jsonl",
+      "cases_count": 8,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 4,
+      "est_tokens": 16000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "B 端最容易被忽略的合规翻车点。判分方式是沙箱内断言：输出中不得出现占位敏感串原文，且必须满足结构化字段要求——比人工抽查可靠。",
+      "access": "已随仓库预置可跑样本（grader=sandbox，纯本地判分，无需 judge 模型）。",
+      "source_kind": "internal",
+      "sample_note": "本地构造 8 题，敏感数据均为虚构占位值（如 13800138000），check_code 断言其不得出现在输出、且输出满足字段契约。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "rgb-advanced",
+      "name": "RGB（RAG 幻觉·进阶子集）",
+      "tier": "advanced",
+      "category": "RAG 智能体 / 忠实度",
+      "object_axes": [
+        "rag_agent"
+      ],
+      "dimensions": [
+        "rag",
+        "faithfulness"
+      ],
+      "description": "检索增强生成的忠实度基准（4 类：拒答/反向/误引/主体变更），测幻觉。",
+      "source": "Chen et al. 2024 · arXiv:2404.10198 · alibaba/RGB",
+      "official_url": "https://huggingface.co/datasets/RAGbenchmark/RGB",
+      "license": "研究用途（确认）",
+      "commercial_use": false,
+      "version": "v1.0",
+      "updated": "2024-04",
+      "data_format": "JSONL (harness Case, grader=judge+rubric)",
+      "recommended_grader": "judge",
+      "suite_file": "rgb_advanced.jsonl",
+      "cases_count": 12,
+      "full_scale": "约 1,200 任务（4 类）",
+      "est_duration_min": 6,
+      "est_tokens": 40000,
+      "languages": [
+        "en",
+        "zh"
+      ],
+      "scenario": "带 RAG 的 Agent 验收——回答是否忠实于检索上下文（不编造）。",
+      "access": "已随仓库预置可跑样本；运行须带 judge 模型（CLI: --judge-provider <p> --grader judge）。官方抽样需联网主机执行 fetch。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 12 题代表性样本，覆盖 RGB 的四类幻觉场景（拒绝回答/反向诱导/误引纠正/主体变更），grader=judge 需配 judge 模型。非官方原始数据；联网主机跑 fetch --only rgb-advanced --force 可替换。",
+      "sample_built": "2026-09-17",
+      "recommends_judge": true
+    },
+    {
+      "id": "safetybench-advanced",
+      "name": "SafetyBench（中文安全·进阶子集）",
+      "tier": "advanced",
+      "category": "智化融合系统 / 安全·内容安全（中文）",
+      "object_axes": [
+        "safety_agent"
+      ],
+      "dimensions": [
+        "safety",
+        "content_safety",
+        "china_compliance"
+      ],
+      "description": "中文内容安全基准，覆盖冒犯性、偏见歧视、身心健康、非法活动、伦理道德、隐私财产、未成年人保护七类，含医疗/金融越界。",
+      "source": "Zhang et al. 2023 · arXiv:2309.07045 · thu-coai/SafetyBench",
+      "official_url": "https://huggingface.co/datasets/thu-coai/SafetyBench",
+      "aligned_to": "SafetyBench",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (数据集本身 2023)",
+      "updated": "2023-09",
+      "data_format": "JSONL (harness Case, grader=permission)",
+      "recommended_grader": "permission",
+      "suite_file": "safetybench_advanced.jsonl",
+      "cases_count": 10,
+      "full_scale": "约 11,435 题 / 7 大类",
+      "est_duration_min": 5,
+      "est_tokens": 20000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "中国合规向的内容安全位：面向公众服务（有舆论属性）的 Agent 必测。含自伤危机场景的转介要求（12356/120）与医疗金融越界拒绝。",
+      "access": "已随仓库预置可跑样本（grader=permission，确定性判分）。官方抽样需联网主机执行 fetch；许可待确认。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 10 题代表性样本，覆盖 SafetyBench 七类并补充未成年人保护与医疗/金融越界两类实务场景；crisis_referral 字段记录危机转介要求。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "bfcl-deep",
+      "name": "BFCL（工具调用·单轮子集）",
+      "tier": "deep",
+      "category": "特定用途智能体 / 工具调用",
+      "object_axes": [
+        "tool_use_agent"
+      ],
+      "dimensions": [
+        "tool_use",
+        "function_calling"
+      ],
+      "description": "伯克利函数调用排行榜——多语言函数调用正确性，单轮子集可本地评。",
+      "source": "Patil et al. 2025 · gorilla/berkeley-function-call-leaderboard（题集在 GitHub 仓库 data/ 下，非 HF splits）",
+      "official_url": "https://github.com/gorilla/berkeley-function-call-leaderboard",
+      "license": "Apache-2.0",
+      "commercial_use": true,
+      "version": "v4 (2025)",
+      "updated": "2025",
+      "data_format": "JSONL (harness Case, grader=contract)",
+      "recommended_grader": "contract",
+      "suite_file": "bfcl_deep.jsonl",
+      "cases_count": 15,
+      "full_scale": "约 2,000+ 单轮函数调用",
+      "est_duration_min": 10,
+      "est_tokens": 30000,
+      "languages": [
+        "en",
+        "python",
+        "java",
+        "js"
+      ],
+      "scenario": "工具调用 Agent 的接口正确性基线；单轮子集可无环境跑（输出格式校验）。",
+      "access": "已随仓库预置可跑样本；官方题集需联网主机执行 tools/fetch_datasets.py --only bfcl-deep --force（BFCL 的 JSON 路径随版本变化，如失败请按官方 README 更新 SOURCE 里的 URL）。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 15 题代表性样本（单轮函数调用，覆盖天气/航班/邮件/日历/行情/翻译/计算/查询/预订等常见工具），gold 为标准调用 JSON，对应 contract 评分器校验输出契约。非官方原始数据；联网主机跑 fetch --only bfcl-deep --force 可替换（拉 GitHub raw JSON）。",
+      "sample_built": "2026-09-17",
+      "recommends_judge": false
+    },
+    {
+      "id": "cmeval-deep",
+      "name": "CMExam（中文医疗·深度子集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 医疗",
+      "object_axes": [
+        "vertical_medical"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "single_turn_qa"
+      ],
+      "description": "中文医疗领域基准：基础生命体征、急救、公共卫生、心血管、内分泌、药事管理、输血医学、合理用药、营养评估共 10 类。",
+      "source": "Liu et al. 2024 · arXiv:2306.15033 · CMExam",
+      "official_url": "https://github.com/williamliujl/CMExam",
+      "aligned_to": "CMExam · MedQA",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (数据集本身 2023)",
+      "updated": "2023-06",
+      "data_format": "JSONL (harness Case, MCQ)",
+      "recommended_grader": "code(exact/contains)",
+      "suite_file": "cmeval_deep.jsonl",
+      "cases_count": 10,
+      "full_scale": "约 68,000 题（国家医师资格考试风格）",
+      "est_duration_min": 4,
+      "est_tokens": 12000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "医疗行业 Agent 的业务正确性基线；同时是「医疗建议越界」的红线素材来源（见 safetybench-advanced 的 SB-09）。",
+      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 fetch。许可待确认。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 10 题代表性样本（心率/体温/CPR 频率/传染病三环节/高血压与糖尿病诊断切点/处方药管理/献血量/抗生素使用/BMI），均取公认临床常识口径，已逐题核对。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "fineval-deep",
+      "name": "FinEval（中文金融·深度子集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 金融",
+      "object_axes": [
+        "vertical_finance"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "single_turn_qa"
+      ],
+      "description": "中文金融领域基准：证券基础、估值、利率体系、资产配置、货币政策、固定收益、基金治理、信息披露共 10 类实务口径。",
+      "source": "Zhang et al. 2023 · arXiv:2308.09975 · SUFE-AIFLM-Lab/FinEval",
+      "official_url": "https://huggingface.co/datasets/SUFE-AIFLM-Lab/FinEval",
+      "aligned_to": "FinEval",
+      "license": "CC-BY-NC-4.0（非商用）",
+      "commercial_use": false,
+      "version": "v1.0 (数据集本身 2023)",
+      "updated": "2023-08",
+      "data_format": "JSONL (harness Case, MCQ)",
+      "recommended_grader": "code(exact/contains)",
+      "suite_file": "fineval_deep.jsonl",
+      "cases_count": 10,
+      "full_scale": "约 4,600 题 / 34 学科（金融学术与执业）",
+      "est_duration_min": 4,
+      "est_tokens": 12000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "金融行业客户问「你有没有我们行业的用例」时的正面回答；业务正确性（而非通用能力）口径。注意许可能为非商用，商用前需法务确认。",
+      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 fetch。许可 CC-BY-NC 类，商用前须法务确认。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 10 题代表性样本（A 股涨跌幅、PE 计算、LPR、分散投资、存款准备金率、债券价格与利率、基金管理人职责、权益类资产、复利计算、定期报告范围），答案已逐题核对。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "humaneval-deep",
+      "name": "HumanEval（代码生成·深度子集）",
+      "tier": "deep",
+      "category": "编码智能体 / 函数级代码生成",
+      "object_axes": [
+        "coding_agent"
+      ],
+      "dimensions": [
+        "coding",
+        "code_generation"
+      ],
+      "description": "函数级代码生成基准：给定签名与语义要求产出可运行实现，由单元测试判定对错——真正跑起来才算过。",
+      "source": "Chen et al. 2021 · arXiv:2107.03374 · openai/openai_humaneval",
+      "official_url": "https://huggingface.co/datasets/openai/openai_humaneval",
+      "aligned_to": "HumanEval",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0 (数据集本身 2021)",
+      "updated": "2021-07",
+      "data_format": "JSONL (harness Case, grader=sandbox 执行单测)",
+      "recommended_grader": "sandbox",
+      "suite_file": "humaneval_deep.jsonl",
+      "cases_count": 10,
+      "full_scale": "164 题（HumanEval）／数百题（HumanEval+、MBPP）",
+      "est_duration_min": 8,
+      "est_tokens": 30000,
+      "languages": [
+        "python"
+      ],
+      "scenario": "补上「编码能力」这块最大缺口，且无需 Docker：check_code 在受限子进程内 exec 被测实现并跑断言，隔离资源与异常。可商用（MIT）。",
+      "access": "已随仓库预置可跑样本（grader=sandbox，纯本地判分、真执行代码）。官方题集需联网主机执行 fetch。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 10 题代表性样本（简单到中等难度：字符串/数组/哈希/递归/区间合并/括号匹配等），每题附 2–3 条断言，gold 为参考实现。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "ifeval-deep",
+      "name": "IFEval（指令跟随·深度子集）",
+      "tier": "deep",
+      "category": "通用大模型 / 指令跟随",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "instruction_following",
+        "format_control"
+      ],
+      "description": "可验证指令跟随基准：句数、行长、禁用词、必含词、纯中文、裸 JSON、词数区间、Markdown 表格与末行固定——全部程序化校验。",
+      "source": "Zhou et al. 2023 · arXiv:2311.07911 · google/IFEval",
+      "official_url": "https://huggingface.co/datasets/google/IFEval",
+      "aligned_to": "IFEval",
+      "license": "Apache-2.0",
+      "commercial_use": true,
+      "version": "v1.0 (数据集本身 2023)",
+      "updated": "2023-11",
+      "data_format": "JSONL (harness Case, grader=sandbox 约束断言)",
+      "recommended_grader": "sandbox",
+      "suite_file": "ifeval_deep.jsonl",
+      "cases_count": 8,
+      "full_scale": "约 541 题 / 25 类可验证指令",
+      "est_duration_min": 5,
+      "est_tokens": 12000,
+      "languages": [
+        "zh",
+        "en"
+      ],
+      "scenario": "交付验收里最高频的争议来源：格式与约束类要求（字数、字段、不得出现某词）非常容易在改写后失效，且完全可以用代码判定，不依赖 judge。可商用（Apache-2.0）。",
+      "access": "已随仓库预置可跑样本（grader=sandbox，纯本地判分）。官方题集需联网主机执行 fetch。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 8 题代表性样本，约束类型覆盖句数/编号列表/纯中文/裸 JSON/必含词/前缀与禁标点/词数区间/Markdown 表格，gold 逐题满足全部约束并已实测。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "lawbench-deep",
+      "name": "LawBench（法律·深度子集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 法律",
+      "object_axes": [
+        "vertical_legal"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "single_turn_qa"
+      ],
+      "description": "中文法律基准（20 任务），覆盖记忆/理解/应用/专业推理，测法律正确性。",
+      "source": "Fei et al. 2024 · arXiv:2409.20288 · SuTao-Projects/LawBench",
+      "official_url": "https://huggingface.co/datasets/SuTao-Projects/LawBench",
+      "license": "Apache-2.0",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2024-09",
+      "data_format": "JSONL (harness Case, MCQ)",
+      "recommended_grader": "code(exact)",
+      "suite_file": "lawbench_deep.jsonl",
+      "cases_count": 25,
+      "full_scale": "约 9,700 题（20 任务）",
+      "est_duration_min": 10,
+      "est_tokens": 35000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "法律行业 Agent 的业务正确性基线；可商用（Apache-2.0）。",
+      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 tools/fetch_datasets.py --only lawbench-deep --sample 100 --force。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 25 题代表性样本（民法典/刑法/宪法/诉讼法/公司法等实体与程序法常识四选一），答案经逐题核对。非官方原始数据；联网主机跑 fetch --only lawbench-deep --force 可替换为官方抽样（Apache-2.0 可商用）。",
+      "sample_built": "2026-09-17",
+      "recommends_judge": false
+    },
+    {
+      "id": "longcontext-deep",
+      "name": "长上下文定位（自研·深度）",
+      "tier": "deep",
+      "category": "智化融合系统 / 长上下文·关键信息定位",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "long_context",
+        "information_retrieval"
+      ],
+      "description": "海量文档里的关键信息定位：在制度、手册、纪要、合同、日志、政策、方案、财报八类长文本中，跨段定位唯一正确答案，并抵抗同构干扰项。",
+      "source": "本项目自研（对齐 LongBench / Needle-in-a-Haystack 思路）",
+      "official_url": "https://github.com/THUDM/LongBench",
+      "aligned_to": "LongBench · Needle-in-a-Haystack",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=code 数值/日期精确匹配)",
+      "recommended_grader": "code(exact/contains)",
+      "suite_file": "longcontext_deep.jsonl",
+      "cases_count": 8,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 6,
+      "est_tokens": 30000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "合同与制度类 Agent 的高频翻车点：长文档里同类数字/日期/比例互相干扰（如卖方 0.5% 与买方 0.3%、首批与第二批发布日），要求精确定位而非近似。",
+      "access": "已随仓库预置可跑样本（grader=code，确定性判分）。",
+      "source_kind": "internal",
+      "sample_note": "本地构造 8 题，每题含 700–1100 字长上下文，meta 标注 needle / distractors / context_span，gold 为唯一数值或日期。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "multiagent-handoff-deep",
+      "name": "多智能体交接失真（自研·深度）",
+      "tier": "deep",
+      "category": "多智能体协作 / 交接契约与责任归属",
+      "object_axes": [
+        "multi_agent"
+      ],
+      "dimensions": [
+        "multi_agent",
+        "handoff",
+        "trajectory"
+      ],
+      "description": "多智能体系统的交接契约验收：任务分解、委派、上下文传递、并行冲突、一票否决短路、留痕归档。判分看轨迹覆盖率与首错步骤定位。",
+      "source": "本项目自研（对齐 MultiAgentBench/MARBLE 与轨迹级归因思路）",
+      "official_url": "https://github.com/ulab-uiuc/MARBLE",
+      "aligned_to": "MultiAgentBench · MARBLE",
+      "license": "内部自研",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2026-09",
+      "data_format": "JSONL (harness Case, grader=trajectory)",
+      "recommended_grader": "trajectory",
+      "suite_file": "multiagent_handoff_deep.jsonl",
+      "cases_count": 8,
+      "full_scale": "可随项目扩展",
+      "est_duration_min": 6,
+      "est_tokens": 24000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "多智能体把「交界层」从 1 类（模型↔工具）扩成 N 类（agent↔agent），并新增分解错/委派错/上下文丢失/结果冲突/死循环/责任真空/成本爆炸等单智能体没有的失效模式。本集用 trajectory 评分器给出交接覆盖率与最早出错步骤，使失败可归因而非只看终分。",
+      "access": "已随仓库预置可跑样本（grader=trajectory，确定性判分，无需 judge 模型）。",
+      "source_kind": "internal",
+      "sample_note": "本地构造 8 题，覆盖招投标评审委员会／虚拟研发团队／智能投研／内容工作室／能源运营／红蓝对抗／客服升级链／跨部门审批八个多智能体场景；meta.expected_steps 为交接清单，gold 为逐步轨迹。非官方原始数据。",
+      "recommends_judge": false,
+      "sample_built": "2026-09-17"
+    },
+    {
+      "id": "ragbench-deep",
+      "name": "RAGBench（RAG 评测·深度子集）",
+      "tier": "deep",
+      "category": "RAG 智能体 / 端到端评测",
+      "object_axes": [
+        "rag_agent"
+      ],
+      "dimensions": [
+        "rag",
+        "faithfulness",
+        "answer_relevance"
+      ],
+      "description": "端到端 RAG 评测（含忠实度/答案相关性/上下文利用），多领域真实语料。",
+      "source": "Friel et al. 2024 (Galileo) · arXiv:2407.11005 · rungalileo/ragbench",
+      "official_url": "https://huggingface.co/datasets/rungalileo/ragbench",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2024-07",
+      "data_format": "JSONL (harness Case, grader=judge+rubric)",
+      "recommended_grader": "judge",
+      "suite_file": "ragbench_deep.jsonl",
+      "cases_count": 12,
+      "full_scale": "约 1万+ 标注实例（5 领域）",
+      "est_duration_min": 12,
+      "est_tokens": 50000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "深度 RAG 验收——端到端忠实度与相关性；可商用（MIT）。",
+      "access": "已随仓库预置可跑样本；运行须带 judge 模型（CLI: --judge-provider <p> --grader judge）。官方抽样需联网主机执行 fetch。",
+      "source_kind": "hf_dataset",
+      "sample_note": "本地构造 12 题代表性样本（端到端 RAG：忠实度/相关性/上下文利用，跨制度·流程·合同·技术·安全五类业务语料），grader=judge 需配 judge 模型。非官方原始数据；联网主机跑 fetch --only ragbench-deep --force 可替换为官方抽样（MIT 可商用）。",
+      "sample_built": "2026-09-17",
+      "recommends_judge": true
+    },
+    {
+      "id": "agentbench",
+      "name": "AgentBench（多环境·专家/环境）",
+      "tier": "expert",
+      "category": "通用大模型 / 多环境综合能力",
+      "object_axes": [
+        "general_llm"
+      ],
+      "dimensions": [
+        "multi_env",
+        "tool_use",
+        "environment"
+      ],
+      "description": "8 种环境（OS/DB/知识图/卡牌/网页/游戏/家私/数字）的综合 LLM Agent 基准。",
+      "source": "Liu et al. 2024 · arXiv:2308.03688 · THUDM/AgentBench",
+      "official_url": "https://github.com/THUDM/AgentBench",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2024",
+      "data_format": "需多环境（Docker/DB/OS 等）",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 8,
+      "full_scale": "8 大环境",
+      "est_duration_min": 240,
+      "est_tokens": 900000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "通用 LLM 在多种环境的综合能力验收；环境最杂，属重活，仅元数据占位。",
+      "access": "Phase 3 接入多环境桥接；当前仅目录登记。",
+      "requires_env": true,
+      "env_notes": "需 Docker/DB/OS/网络等多环境栈。",
+      "source_kind": "git",
+      "recommends_judge": false
+    },
+    {
+      "id": "gaia",
+      "name": "GAIA（通用助手·专家/环境）",
+      "tier": "expert",
+      "category": "通用助手 / 多步真实任务",
+      "object_axes": [
+        "general_assistant"
+      ],
+      "dimensions": [
+        "multi_step",
+        "tool_use",
+        "environment"
+      ],
+      "description": "需多工具协作的真实世界推理任务（网页/文件/代码），测通用助手能力。",
+      "source": "Mialon et al. 2023 · arXiv:2311.12983 · gaia-benchmark/GAIA",
+      "official_url": "https://huggingface.co/datasets/gaia-benchmark/GAIA",
+      "license": "CC-BY-4.0",
+      "commercial_use": false,
+      "version": "v1.0",
+      "updated": "2023-11",
+      "data_format": "需多种工具（浏览器/代码/文件）执行，非纯 JSONL",
+      "recommended_grader": "judge",
+      "suite_file": null,
+      "cases_count": 466,
+      "full_scale": "466 题（验证集）",
+      "est_duration_min": 150,
+      "est_tokens": 700000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "通用助手真实任务验收；需多工具协同环境，属重活，仅元数据占位。注意 CC-BY-4.0 非商用。",
+      "access": "Phase 3 接入工具桥接；当前仅目录登记。许可 CC-BY-4.0，商用需授权。",
+      "requires_env": true,
+      "env_notes": "需浏览器/代码/文件等多工具执行环境。",
+      "source_kind": "hf_dataset",
+      "recommends_judge": false
+    },
+    {
+      "id": "multiagentbench",
+      "name": "MultiAgentBench / MARBLE（多智能体·专家/环境）",
+      "tier": "expert",
+      "category": "多智能体协作 / 多环境协作与竞争",
+      "object_axes": [
+        "multi_agent"
+      ],
+      "dimensions": [
+        "multi_agent",
+        "collaboration",
+        "environment"
+      ],
+      "description": "在多种环境下评测多智能体协作与竞争，指标含任务完成度与协作质量（里程碑达成、通信结构），是「交接失真」的公开对照口径。",
+      "source": "Zhu et al. 2025 · MARBLE · arXiv:2503.01935",
+      "official_url": "https://github.com/ulab-uiuc/MARBLE",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0 (2025)",
+      "updated": "2025-03",
+      "data_format": "需多环境（研究/编码/数据库/游戏）+ 多智能体编排",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 6,
+      "full_scale": "6 类协作场景 × 多环境",
+      "est_duration_min": 240,
+      "est_tokens": 900000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "多智能体方向的公开对照：我们自研的 multiagent-handoff-deep 与之互补——它是任务口径，我们补的是「交接契约与首错归因」。环境重，仅元数据占位。",
+      "access": "Phase 3 接入多智能体编排桥接；当前仅目录登记。",
+      "requires_env": true,
+      "env_notes": "需多环境栈 + 多智能体编排框架；资源最重的一类。",
+      "source_kind": "git",
+      "recommends_judge": false
+    },
+    {
+      "id": "osworld",
+      "name": "OSWorld（OS/GUI·专家/环境）",
+      "tier": "expert",
+      "category": "Web/OS/GUI 智能体 / 桌面操作",
+      "object_axes": [
+        "gui_agent"
+      ],
+      "dimensions": [
+        "tool_use",
+        "gui",
+        "environment"
+      ],
+      "description": "真实 Windows/macOS/Linux 桌面的多模态 GUI Agent 基准（229 任务）。",
+      "source": "Xie et al. 2024 · arXiv:2404.07972 · xlang-ai/OSWorld",
+      "official_url": "https://github.com/xlang-ai/OSWorld",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v2.x (Verified 2025-07)",
+      "updated": "2025-07",
+      "data_format": "需 VM/容器 + 桌面自动化",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 229,
+      "full_scale": "229 任务",
+      "est_duration_min": 180,
+      "est_tokens": 600000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "桌面/OS GUI Agent 验收；需 VM 与桌面自动化，属重活，仅元数据占位。",
+      "access": "Phase 3 接入 VM 桥接；当前仅目录登记。",
+      "requires_env": true,
+      "env_notes": "需虚拟机/容器 + 桌面自动化栈；资源最重。",
+      "source_kind": "git",
+      "recommends_judge": false
+    },
+    {
+      "id": "swebench-lite",
+      "name": "SWE-bench Lite（代码·专家/环境）",
+      "tier": "expert",
+      "category": "编码智能体 / 真实仓库修复",
+      "object_axes": [
+        "coding_agent"
+      ],
+      "dimensions": [
+        "tool_use",
+        "coding",
+        "environment"
+      ],
+      "description": "真实 GitHub Issue→PR 的端到端代码修复基准，需代码沙箱执行测试。",
+      "source": "Jimenez et al. 2024 · arXiv:2310.06770 · princeton-nlp/SWE-bench_Lite",
+      "official_url": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Lite",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "Lite (300 题)",
+      "updated": "2024",
+      "data_format": "需代码沙箱（Docker）执行，非纯 JSONL",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 300,
+      "full_scale": "300 题（Lite）",
+      "est_duration_min": 120,
+      "est_tokens": 500000,
+      "languages": [
+        "python"
+      ],
+      "scenario": "编码 Agent 真刀真枪验收；需 Docker 沙箱跑测试，属重活，仅元数据占位。",
+      "access": "Phase 2/3 接入代码沙箱桥接；当前仅目录登记。接入：pip install swebench + 拉取 Docker 镜像。",
+      "requires_env": true,
+      "env_notes": "需 Docker 沙箱执行被测 Agent 的补丁并跑仓库测试；资源重、耗时长，单题分钟级。",
+      "source_kind": "hf_dataset",
+      "recommends_judge": false
+    },
+    {
+      "id": "swebench-verified",
+      "name": "SWE-bench Verified（代码·专家/环境）",
+      "tier": "expert",
+      "category": "编码智能体 / 真实仓库修复（人工校验子集）",
+      "object_axes": [
+        "coding_agent"
+      ],
+      "dimensions": [
+        "coding",
+        "tool_use",
+        "environment"
+      ],
+      "description": "SWE-bench 的人工校验子集（500 题），剔除描述不清或无解的样本，是目前编码 Agent 最被认可的端到端口径。",
+      "source": "Jimenez et al. 2024 · arXiv:2310.06770 · princeton-nlp/SWE-bench_Verified",
+      "official_url": "https://huggingface.co/datasets/princeton-nlp/SWE-bench_Verified",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "Verified (500 题)",
+      "updated": "2024-08",
+      "data_format": "需代码沙箱（Docker）执行，非纯 JSONL",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 500,
+      "full_scale": "500 题（Verified）／2,294 题（Full）",
+      "est_duration_min": 180,
+      "est_tokens": 800000,
+      "languages": [
+        "python"
+      ],
+      "scenario": "编码 Agent 的对外可比口径：客户若用 SWE-bench 数字对标，我们至少要能解释与 SWE-bench Verified 的关系。需 Docker 沙箱跑测试，属重活，仅元数据占位。",
+      "access": "Phase 2/3 接入代码沙箱桥接；当前仅目录登记。接入：pip install swebench + 拉取对应仓库镜像。",
+      "requires_env": true,
+      "env_notes": "每题需检出对应仓库与提交、应用补丁、运行仓库自身测试；单题分钟级、镜像体积大。",
+      "source_kind": "hf_dataset",
+      "recommends_judge": false
+    },
+    {
+      "id": "tau-bench",
+      "name": "τ-bench（工具调用·专家/环境）",
+      "tier": "expert",
+      "category": "特定用途智能体 / 工具调用（多轮）",
+      "object_axes": [
+        "tool_use_agent"
+      ],
+      "dimensions": [
+        "multi_turn",
+        "tool_use",
+        "environment"
+      ],
+      "description": "多轮工具调用 + 用户模拟，测 Agent 在策略约束下的状态一致性（零售/航空）。",
+      "source": "Yao et al. 2024 · arXiv:2406.12045 · sierra-research/tau-bench",
+      "official_url": "https://github.com/sierra-research/tau-bench",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v0.x (2026-03 更新)",
+      "updated": "2026-03",
+      "data_format": "需沙箱 + 模拟用户 + 领域 API（零售/航空）",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 258,
+      "full_scale": "约 258 任务（零售+航空）",
+      "est_duration_min": 160,
+      "est_tokens": 650000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "多轮工具调用 Agent 的状态一致性验收；需沙箱+模拟用户，属重活，仅元数据占位。",
+      "access": "Phase 2/3 接入沙箱桥接；当前仅目录登记。",
+      "requires_env": true,
+      "env_notes": "需沙箱 + 模拟用户 + 领域 API 桩；多轮。",
+      "source_kind": "git",
+      "recommends_judge": false
+    },
+    {
+      "id": "tau2-bench",
+      "name": "τ²-bench（多轮工具调用·专家/环境）",
+      "tier": "expert",
+      "category": "特定用途智能体 / 工具调用（多轮·双控制）",
+      "object_axes": [
+        "tool_use_agent"
+      ],
+      "dimensions": [
+        "multi_turn",
+        "tool_use",
+        "multi_agent",
+        "environment"
+      ],
+      "description": "τ-bench 的继任者：双向控制（agent 与用户都能操作同一真实环境），测多轮策略遵循与状态一致性。",
+      "source": "Yao et al. 2024–2025 · sierra-research/tau2-bench",
+      "official_url": "https://github.com/sierra-research/tau2-bench",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v2 (2025)",
+      "updated": "2025",
+      "data_format": "需沙箱 + 模拟用户 + 领域 API（电信/零售/航空）",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 300,
+      "full_scale": "数百任务（电信/零售/航空三域）",
+      "est_duration_min": 180,
+      "est_tokens": 700000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "多轮工具调用的最贴近生产口径：策略文档 + 状态一致性 + 用户模拟。需沙箱与领域 API 桩，属重活，仅元数据占位。",
+      "access": "Phase 2/3 接入沙箱桥接；当前仅目录登记。",
+      "requires_env": true,
+      "env_notes": "需沙箱、模拟用户与领域 API 桩；多轮、耗时长。",
+      "source_kind": "git",
+      "recommends_judge": false
+    },
+    {
+      "id": "terminal-bench",
+      "name": "Terminal-Bench（终端操作·专家/环境）",
+      "tier": "expert",
+      "category": "编码智能体 / 终端与系统工程操作",
+      "object_axes": [
+        "coding_agent",
+        "general_assistant"
+      ],
+      "dimensions": [
+        "tool_use",
+        "environment",
+        "multi_step"
+      ],
+      "description": "在真实终端里完成系统与工程任务（编译、调试、文件处理、服务排障），任务级判定而非函数级。",
+      "source": "Stanford / Laude Institute 2025 · laude-institute/terminal-bench",
+      "official_url": "https://github.com/laude-institute/terminal-bench",
+      "license": "Apache-2.0",
+      "commercial_use": true,
+      "version": "v1.x (2025)",
+      "updated": "2025",
+      "data_format": "需容器化终端环境 + 任务级校验",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 100,
+      "full_scale": "约 100+ 任务",
+      "est_duration_min": 120,
+      "est_tokens": 500000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "运维/DevOps 类 Agent 的验收口径；与 SWE-bench（改代码）互补，看的是「能不能把环境搞对」。需容器，属重活，仅元数据占位。",
+      "access": "Phase 3 接入容器化终端桥接；当前仅目录登记。",
+      "requires_env": true,
+      "env_notes": "需容器镜像与任务级校验脚本；单任务分钟级。",
+      "source_kind": "git",
+      "recommends_judge": false
+    },
+    {
+      "id": "webarena",
+      "name": "WebArena（Web Agent·专家/环境）",
+      "tier": "expert",
+      "category": "Web/OS/GUI 智能体 / 网站操作",
+      "object_axes": [
+        "web_agent"
+      ],
+      "dimensions": [
+        "tool_use",
+        "web_navigation",
+        "environment"
+      ],
+      "description": "自托管网页环境（电商/论坛/地图等 4 站点）的端到端 Web Agent 任务。",
+      "source": "Zhou et al. 2024 · arXiv:2307.13854 · web-arena/xwebarena",
+      "official_url": "https://github.com/web-arena-x/webarena",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0",
+      "updated": "2024",
+      "data_format": "需浏览器 + 4 个自托管 Web 服务（Docker）",
+      "recommended_grader": "sandbox",
+      "suite_file": null,
+      "cases_count": 812,
+      "full_scale": "812 任务",
+      "est_duration_min": 200,
+      "est_tokens": 800000,
+      "languages": [
+        "en"
+      ],
+      "scenario": "Web Agent 真实操作验收；需起 4 个 Web 服务容器，属重活，仅元数据占位。",
+      "access": "Phase 2/3 接入浏览器桥接；当前仅目录登记。接入：克隆 webarena 并按 README 起服务。",
+      "requires_env": true,
+      "env_notes": "需 Docker 起 4 个自托管 Web 应用 + 浏览器驱动；环境重。",
+      "source_kind": "git",
+      "recommends_judge": false
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{"id": "GSM-01", "input": "A train travels 60 km in 1.5 hours. What is its average speed in km/h?", "gold": "40", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-02", "input": "Tom has 3 apples. He buys 5 more and eats 2. How many apples does he have now?", "gold": "6", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-03", "input": "A book costs $12. If you buy 4 books, how much do they cost in total?", "gold": "48", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-04", "input": "What is 25 percent of 200?", "gold": "50", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-05", "input": "A rectangle has length 8 and width 5. What is its area?", "gold": "40", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-06", "input": "If x + 7 = 15, what is the value of x?", "gold": "8", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-07", "input": "A car uses 1 liter of fuel per 10 km. How many liters are needed for 250 km?", "gold": "25", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-08", "input": "Sarah saves $20 per week for 6 weeks. How much has she saved in total?", "gold": "120", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-09", "input": "A shirt is 30 percent off its original price of $50. What is the sale price?", "gold": "35", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-10", "input": "What is 144 divided by 12?", "gold": "12", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-11", "input": "A box holds 12 eggs. How many eggs are there in 3 boxes?", "gold": "36", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-12", "input": "A number doubled equals 50. What is the original number?", "gold": "25", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-13", "input": "What is 7 multiplied by 9?", "gold": "63", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-14", "input": "A pizza is cut into 8 slices. If 3 slices are eaten, how many remain?", "gold": "5", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-15", "input": "You invest $100 at 10 percent simple interest for 1 year. What is the total after 1 year?", "gold": "110", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-16", "input": "What is 3 to the power of 3?", "gold": "27", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-17", "input": "What is the perimeter of a square with side length 6?", "gold": "24", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-18", "input": "What is 0.5 multiplied by 80?", "gold": "40", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-19", "input": "What is 56 minus 29?", "gold": "27", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-20", "input": "What is half of 90?", "gold": "45", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-21", "input": "What is 13 plus 28?", "gold": "41", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-22", "input": "If 5 books cost $45 in total, how much does each book cost?", "gold": "9", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-23", "input": "Compute 18 divided by 3 then multiplied by 2.", "gold": "12", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-24", "input": "A trip of 180 km at a constant speed of 60 km/h takes how many hours?", "gold": "3", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}
+{"id": "GSM-25", "input": "What is 999 minus 456?", "gold": "543", "category": "数学", "difficulty": "easy", "suite": "benchmark", "grader": "code"}

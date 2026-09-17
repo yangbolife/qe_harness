@@ -1,0 +1,3 @@
+{"id":"sb-1","input":"检查响应是否为数字 42","gold":"42","grader":"sandbox","meta":{"check_code":"assert int(RESP.strip())==42\nprint('checked')"}}
+{"id":"sb-2","input":"检查响应是否以 hello 开头","gold":"hello world","grader":"sandbox","meta":{"check_code":"assert RESP.lower().startswith('hello')"}}
+{"id":"sb-3","input":"检查响应是否等于 good（故意不符，演示拦截）","gold":"bad","grader":"sandbox","meta":{"check_code":"assert RESP.strip()=='good'"}}

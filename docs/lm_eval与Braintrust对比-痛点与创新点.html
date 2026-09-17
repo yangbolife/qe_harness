@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lm-eval vs BrainTrust · 痛点挖掘与自研 harness 创新点</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --card:#ffffff; --ink:#1f2933; --sub:#5b6b7b; --line:#e3e8ef;
+    --brand:#2f6fed; --brand2:#7c3aed; --ok:#0f9d58; --warn:#e8743b; --bad:#d64545;
+    --chip:#eef3fb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.65;font-size:15px}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 22px 64px}
+  header.hero{background:linear-gradient(120deg,#2f6fed 0%,#7c3aed 100%);color:#fff;border-radius:16px;
+    padding:28px 30px;margin-bottom:26px;box-shadow:0 8px 28px rgba(47,111,237,.18)}
+  header.hero h1{margin:0 0 8px;font-size:25px;letter-spacing:.3px}
+  header.hero p{margin:0;opacity:.92;font-size:14px}
+  .tag{display:inline-block;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);
+    padding:2px 10px;border-radius:999px;font-size:12px;margin-top:12px;margin-right:6px}
+  h2{font-size:19px;margin:34px 0 14px;padding-left:11px;border-left:4px solid var(--brand);color:#16314f}
+  h3{font-size:15.5px;margin:20px 0 8px;color:#22324a}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:14px 0;
+    box-shadow:0 2px 10px rgba(31,41,51,.04)}
+  table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px;background:#fff;border-radius:10px;overflow:hidden}
+  th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+  th{background:#f0f4fa;color:#22324a;font-weight:600}
+  tr:nth-child(even) td{background:#fafcff}
+  .m-lm{color:var(--brand)} .m-bt{color:var(--brand2)}
+  .pill{display:inline-block;padding:1px 8px;border-radius:6px;font-size:12px;font-weight:600}
+  .p-ok{background:#e6f7ee;color:var(--ok)} .p-warn{background:#fdf0e6;color:var(--warn)}
+  .p-bad{background:#fdeaea;color:var(--bad)} .p-todo{background:#eef3fb;color:var(--brand)}
+  .kv{display:grid;grid-template-columns:120px 1fr;gap:6px 14px;margin:8px 0}
+  .kv b{color:#22324a}
+  .pain{background:#fff5f3;border-left:4px solid var(--bad);padding:12px 16px;border-radius:0 10px 10px 0;margin:12px 0}
+  .fix{background:#f1f8f4;border-left:4px solid var(--ok);padding:12px 16px;border-radius:0 10px 10px 0;margin:12px 0}
+  .pain b{color:var(--bad)} .fix b{color:var(--ok)}
+  code{background:#eef1f6;padding:1px 6px;border-radius:5px;font-size:12.5px;color:#333}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}.kv{grid-template-columns:96px 1fr}}
+  .num{font-weight:700;color:var(--brand2)}
+  footer{margin-top:36px;color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);padding-top:16px}
+  .legend span{margin-right:14px;font-size:12.5px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:middle}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>lm-eval vs BrainTrust：痛点挖掘与自研 harness 创新点</h1>
+  <p>为「llm_agent_eval_harness」找差异化定位 —— 从两个标杆框架的真实盲区里挖可做的创新</p>
+  <div>
+    <span class="tag">基准：lm-evaluation-harness（EleutherAI，开源）</span>
+    <span class="tag">平台：BrainTrust（商业 SaaS）</span>
+    <span class="tag">2026-09-16 整理</span>
+  </div>
+</header>
+
+<!-- 一、定位 -->
+<h2>一、先看清两者到底在评什么</h2>
+<div class="card">
+  <div class="kv">
+    <b>lm-eval</b><span><b>学术基准跑分</b>：给定 prompt→检查输出/LogProb 是否匹配标准答案或 rubric。单机、同步、YAML 定义 200+ 学术 benchmark（MMLU/GSM8K/HellaSwag）。它评的是<b>基座模型能力</b>，不评应用、不评 Agent、不评集成风险面。</span>
+    <b>BrainTrust</b><span><b>商业实验跟踪</b>：把评测当"AI 版单元测试"——版本化 dataset + N 个 variant 跑 + scorer（LLM-judge 或自定义函数）+ 生产 trace 回灌。它评的是<b>应用/agent 的输出质量与回归</b>，偏团队 CI / 生产监控；核心 dashboard / playground / 存储<b>闭源</b>。</span>
+  </div>
+  <p style="color:var(--sub);font-size:13.5px;margin-bottom:0">一句话：<b>lm-eval 赢在学术权威与可复现，BrainTrust 赢在团队 SaaS 与在线闭环</b>；两者都站在"评测范式"的旧象限里，留出了我们可以切入的空白。</p>
+</div>
+
+<h3>能力矩阵对比</h3>
+<table>
+  <tr><th>维度</th><th class="m-lm">lm-eval</th><th class="m-bt">BrainTrust</th><th>两者共同盲区（= 我们的机会）</th></tr>
+  <tr><td>评测对象</td><td>基座模型能力</td><td>应用/agent 输出质量</td><td><b>都不评"交界层"</b>（失效兜底/权限边界/输出契约/责任归属）</td></tr>
+  <tr><td>执行模型</td><td>单机同步（--num_concurrent 仍是单机）</td><td>SaaS 多租户黑盒</td><td>都不暴露<b>可自托管、可复现的高并发内核</b></td></tr>
+  <tr><td>Agent 支持</td><td>无（纯 input→output）</td><td>轻（trace 能看，轨迹级评分弱）</td><td>都无<b>"脚手架 vs 模型"解耦</b>评测</td></tr>
+  <tr><td>评分器</td><td>确定性 metric 为主</td><td>LLM-as-judge 为主</td><td>都无<b>code 优先 + judge 兜底</b>的分层</td></tr>
+  <tr><td>失败归因</td><td>仅最终分</td><td>终分 + 轻轨迹</td><td>都无<b>span 级归因到最早错误</b></td></tr>
+  <tr><td>开源度</td><td>完全开源（MIT）</td><td>SDK 开源、核心闭源</td><td>—</td></tr>
+  <tr><td>可复现</td><td>版本钉 task</td><td>需订阅私有云</td><td>都易漂（harness SHA / judge 版本未强制钉）</td></tr>
+  <tr><td>成本</td><td>自托管 GPU</td><td>judge API 费 + 订阅</td><td>—</td></tr>
+</table>
+
+<!-- 二、痛点×创新点 -->
+<h2>二、6 个痛点 × 对应创新点（核心）</h2>
+<p style="color:var(--sub);font-size:13.5px">每个痛点都标注了<b>真实证据来源</b>，避免空谈。创新点均指向我们 harness 已有的或预留的能力。</p>
+
+<!-- 痛点1 -->
+<div class="card">
+  <h3><span class="num">01</span> · 交界层（集成风险面）全行业空白</h3>
+  <div class="pain">
+    <b>痛点现象：</b>两者都只评"能不能答对"，不评"智能体 ↔ 确定性软件壳"的交界。删库式"成功"、无溯源结论、越权调用——全都不测。BrainTrust 的 agent 评测聚焦最终输出与轻轨迹，对"权限边界/责任归属"无内置指标（2026 综述 Table 2 明确：仅 τ-bench 等少数显式测策略合规，多数 benchmark 不惩罚删库式成功）。
+  </div>
+  <div class="fix">
+    <b>我们的创新：</b><b>四类原子评测器（代码确定性）</b> —— 失效兜底（环境失败优雅降级）、权限边界（拒绝对禁用资源）、输出契约（响应合法且命中 schema）、责任归属（结论标注依据/来源）。这恰是 <b>v1 差异化核心</b>，已在 Phase 1 落地并真实验证（DeepSeek 在"责任归属"项真实翻车 67%）。
+  </div>
+  <p style="font-size:13px;color:var(--sub);margin:0"><b>落地：</b><code>core/graders.py</code> 的 <code>contract / permission / fallback / attribution</code> grader，读 <code>case.meta</code> 声明属性，客观可复现、零 API 成本。</p>
+</div>
+
+<!-- 痛点2 -->
+<div class="card">
+  <h3><span class="num">02</span> · 评 Agent 只看最终分，失败无归因</h3>
+  <div class="pain">
+    <b>痛点现象：</b>单轮 input→output→score，不建模状态累积 / 工具分支 / 错误前传。实证：<b>layerlens 统计 72% 企业 agent 卡在 pilot→prod</b>；Replit agent 删 1200 条高管记录、Kiro 删生产环境致 13h  outage，测试却全过——失败在轨迹不在单步。slavadubrov 2026 也指出：step 7 的 judge 看起来对，根因在 step 3。
+  </div>
+  <div class="fix">
+    <b>我们的创新：</b><b>OTel span 级评分 + 失败归因到最早错误 span</b>。评测对象从"一条终分"变成"一条可追踪的轨迹"：每个工具调用 / 子 agent / 推理步都是独立 span，分数挂在 span 而非 run，使"哪个工具这周退化了"成为一条查询而非一次重跑。配合轨迹级断言（scope 作用域 / order 顺序 / reversibility 可逆性）。
+  </div>
+  <p style="font-size:13px;color:var(--sub);margin:0"><b>落地：</b><code>core/telemetry.py</code> 已埋 <code>eval.run → eval.case → eval.provider.call / eval.grader.*</code> 三层 span（Phase 3）。<b>轨迹级 grader 待做</b>（在现有 span 上挂断言）。</p>
+</div>
+
+<!-- 痛点3 -->
+<div class="card">
+  <h3><span class="num">03</span> · 脚手架混淆：harness 分被算成"模型分"</h3>
+  <div class="pain">
+    <b>痛点现象：</b>一次 agent 跑分混了 backbone LLM / Agent Harness / 工具环境 三样。AgentAtlas（2026-05）实证：同 agent-s3 + GPT-5，单次运行 vs best-of-10 分数 +4.3pp；Claude Code 不同版本跨度达 <b>50.8 个百分点</b>。排行榜越来越像"系统工程分"而非纯模型分。两者都不提供"解耦评测"协议。
+  </div>
+  <div class="fix">
+    <b>我们的创新：</b><b>三方解耦评测协议</b> —— 同一套用例，可分别隔离评：① 纯 backbone LLM（替换 Provider 为裸模型调用）② 纯 Harness（固定模型、换编排/重试/记忆策略）③ 纯工具环境（固定前两者、换 MCP/沙箱）。各自出分，让"分到底来自哪一层"可解释、可追责。
+  </div>
+  <p style="font-size:13px;color:var(--sub);margin:0"><b>落地：</b>引擎设计已预留——<code>provider</code> 即"被测系统"，可替换为裸模型 / 纯 harness / 全系统三种形态；解耦编排 UI 待做。</p>
+</div>
+
+<!-- 痛点4 -->
+<div class="card">
+  <h3><span class="num">04</span> · 静态 benchmark 饱和 + 数据污染 + 单次上报虚高</h3>
+  <div class="pain">
+    <b>痛点现象：</b>MMLU 已饱和（GPT-4/Claude 90%+）；GAIA 易子集饱和；decodethefuture 2026 指出 top 分数被<b>污染/脚手架/单次上报虚高 5–15pp</b>。lm-eval 的 MMLU 数字"比论文低"常因 num_fewshot / 版本 / dtype 漂移——可复现性差。
+  </div>
+  <div class="fix">
+    <b>我们的创新：</b>① <b>动态 / curated 持续产题</b>（借 LiveAgentBench 的 SPDG 思路，从真实场景持续生成、对抗污染）；② <b>版本钉死</b>（harness SHA + task version + judge version 写入每条结果，可跨月比对）；③ <b>pass^k / pass@k 多次去噪</b>（非确定性 SUT 的稳定性度量，而非单次侥幸）。
+  </div>
+  <p style="font-size:13px;color:var(--sub);margin:0"><b>落地：</b>pass@k/pass^k 已在 Phase 2 落地；<code>--limit</code> 之外的完整版本钉（harness SHA 写入结果 json）待补。</p>
+</div>
+
+<!-- 痛点5 -->
+<div class="card">
+  <h3><span class="num">05</span> · LLM-as-judge 成本爆炸 + 偏差</h3>
+  <div class="pain">
+    <b>痛点现象：</b>BrainTrust 的 judge 随 API 调用线性扩成本；rubric 模糊则不可靠；<b>Claw-Eval（2026-04）发现仅看输出的 judge 漏掉 44% 安全违规</b>。lm-eval 部分任务也用 GPT-4 打分，本质变成"对 judge 的评测"。
+  </div>
+  <div class="fix">
+    <b>我们的创新：</b><b>code grader 优先（确定性、0 成本）→ judge 仅兜底</b>的三层评分器（code→judge→human）。judge 使用时强制：① rubric 钉死可复现 ② <b>执行与评分时间隔离</b>（Claw-Eval 三通道：execution trace / 服务端 audit log / 环境 snapshot，防 judge 信息泄露）③ 噪声大时退回到人工标注。
+  </div>
+  <p style="font-size:13px;color:var(--sub);margin:0"><b>落地：</b>三层评分器已在 Phase 1 落地（<code>code / judge / human</code>）；judge 与执行时间隔离的"三通道证据"待做。</p>
+</div>
+
+<!-- 痛点6 -->
+<div class="card">
+  <h3><span class="num">06</span> · 离线 / 在线割裂，生产漂移看不见</h3>
+  <div class="pain">
+    <b>痛点现象：</b>BrainTrust 有 production-to-eval 但<b>闭源、需订阅</b>；公开 benchmark 冻结在 1 月，生产 6 月已漂移（schema 变、工具变、用户变），评测套件却静止。tamiz.pro 称之为"Snapshot Fallacy"——基准测能力，生产测后果。
+  </div>
+  <div class="fix">
+    <b>我们的创新：</b><b>trace 回灌闭环（开源、自托管）</b> —— 生产 trace（我们已是 OTel 结构化）自动降级为 eval 用例 → 进 pytest 门禁；低置信度 trace 自动晋升为新用例。闭环可复现、无供应商锁定，且天然支持"交界层四类"的在线监测。
+  </div>
+  <p style="font-size:13px;color:var(--sub);margin:0"><b>落地：</b>OTel trace 已结构化（Phase 3）；生产 trace → eval 用例的 pipeline 待做（架构已预留接线点）。</p>
+</div>
+
+<!-- 三、进度映射 -->
+<h2>三、创新点 → 我们 harness 的 Phase 进度</h2>
+<table>
+  <tr><th>创新点</th><th>对应痛点</th><th>状态</th><th>说明</th></tr>
+  <tr><td>交界层四类原子评测</td><td>01</td><td><span class="pill p-ok">已落地</span></td><td>Phase 1，真实 SUT 验证（归因项 67%）</td></tr>
+  <tr><td>三层评分器 code→judge→human</td><td>05</td><td><span class="pill p-ok">已落地</span></td><td>Phase 1</td></tr>
+  <tr><td>pass@k / pass^k 稳定性度量</td><td>04</td><td><span class="pill p-ok">已落地</span></td><td>Phase 2</td></tr>
+  <tr><td>令牌桶 + 退避 + 熔断 + 跨进程 Worker</td><td>（高并发内核）</td><td><span class="pill p-ok">已落地</span></td><td>Phase 2 / 3</td></tr>
+  <tr><td>OTel 可观测（span 埋点）</td><td>02</td><td><span class="pill p-ok">已落地</span></td><td>Phase 3，34 span 实测导出</td></tr>
+  <tr><td>轨迹级 grader（scope/order/reversibility 断言）</td><td>02</td><td><span class="pill p-todo">待做</span></td><td>在现有 span 上挂断言</td></tr>
+  <tr><td>脚手架三方解耦编排</td><td>03</td><td><span class="pill p-todo">设计预留</span></td><td>Provider 抽象已支持替换</td></tr>
+  <tr><td>版本钉死（harness SHA 入结果）</td><td>04</td><td><span class="pill p-todo">部分</span></td><td>结果 json 含 task 信息，harness SHA 待补</td></tr>
+  <tr><td>judge 与执行时间隔离（三通道证据）</td><td>05</td><td><span class="pill p-todo">待做</span></td><td>Claw-Eval 协议</td></tr>
+  <tr><td>trace 回灌闭环（生产→eval）</td><td>06</td><td><span class="pill p-todo">待做</span></td><td>架构已预留接线点</td></tr>
+</table>
+
+<!-- 四、结论 -->
+<h2>四、结论：我们产品的差异化定位</h2>
+<div class="card">
+  <p style="margin-top:0">把上面的空白拼起来，我们的 <b>llm_agent_eval_harness</b> 不该去和 lm-eval 拼学术 benchmark 数量，也不该去和 BrainTrust 拼 SaaS 体验。差异化定位是：</p>
+  <div class="grid2">
+    <div class="card" style="margin:0">
+      <h3 style="margin-top:0">lm-eval 留给我们的空位</h3>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px">
+        <li>不评 Agent 轨迹 → 我们做 span 级归因</li>
+        <li>不评交界层 → 我们做四类原子评测</li>
+        <li>单机同步 → 我们做开源高并发内核</li>
+        <li>自定义 Task 极难 → 我们插件化解耦</li>
+      </ul>
+    </div>
+    <div class="card" style="margin:0">
+      <h3 style="margin-top:0">BrainTrust 留给我们的空位</h3>
+      <ul style="margin:0;padding-left:18px;font-size:13.5px">
+        <li>核心闭源 → 我们全开源内核</li>
+        <li>judge 成本/偏差 → 我们 code 优先</li>
+        <li>无脚手架解耦 → 我们三方解耦</li>
+        <li>生产闭环锁定 → 我们自托管 trace 回灌</li>
+      </ul>
+    </div>
+  </div>
+  <p style="margin-bottom:0;margin-top:14px"><b>一句话定位：</b>「<b>交界层原子评测 + 轨迹级归因 + 脚手架解耦 + 开源可复现高并发内核</b>」—— 这是 lm-eval 与 BrainTrust 都没覆盖、且正好对应我们"智化融合系统第三方交付验收"主业的空白区。</p>
+</div>
+
+<footer>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--ok)"></span>已落地</span>
+    <span><span class="dot" style="background:var(--brand)"></span>待做 / 设计预留</span>
+    <span><span class="dot" style="background:var(--warn)"></span>部分</span>
+  </div>
+  证据来源：lm-eval 官方指南与踩坑集、BrainTrust 官方与 2026 对比、AgentAtlas(2605)、Claw-Eval(2604)、LiveAgentBench(2603)、layerlens/tamiz.pro/slavadubrov 2026 Agent 评测生产失效分析、decodethefuture 2026 Agent benchmark 综述。
+  相关文档：<code>智化融合评测harness-架构方案.html</code>（本分析的架构母本）。
+</footer>
+
+</div>
+</body>
+</html>

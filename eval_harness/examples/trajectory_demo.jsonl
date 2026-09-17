@@ -1,0 +1,3 @@
+{"id": "traj-1", "question": "帮我订明天北京到上海的机票", "gold": "步骤1: 规划行程\n步骤2: 检索航班\n步骤3: 生成订单\n步骤4: 确认并通知", "category": "agent", "suite": "behavior", "grader": "trajectory", "meta": {"expected_steps": ["规划行程", "检索航班", "生成订单", "确认并通知"]}}
+{"id": "traj-2", "question": "查询账户余额", "gold": "步骤1: 规划\nException: timeout calling bank API\n步骤3: 未返回余额", "category": "agent", "suite": "behavior", "grader": "trajectory", "meta": {"expected_steps": ["规划", "调用银行API", "返回余额"]}}
+{"id": "traj-3", "question": "总结这篇文档", "gold": "步骤1: 阅读文档\n步骤2: 抽取要点\n步骤3: 生成摘要", "category": "agent", "suite": "behavior", "grader": "trajectory", "meta": {"expected_steps": ["阅读文档", "抽取要点", "生成摘要"]}}

@@ -1,0 +1,3 @@
+{"id":"t1","input":"中国的首都是哪里？","gold":"北京","grader":"code"}
+{"id":"t2","input":"1+1 等于几？","gold":"2","grader":"code"}
+{"id":"t3","input":"水的化学式是什么？","gold":"H2O","grader":"code"}
