@@ -46,7 +46,13 @@
       "sample_note": "本地构造 10 题代表性样本（高考数学/物理/化学/生物/英语、公务员判断推理与常识、法考刑法），非官方原始数据。",
       "recommends_judge": false,
       "source_kind": "hf_dataset",
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "general_llm",
+      "capabilities": [
+        "knowledge",
+        "reasoning",
+        "china_specific"
+      ]
     },
     {
       "id": "arc-basic",
@@ -83,7 +89,12 @@
       "sample_note": "本地构造 10 题代表性样本（结构对齐 ARC 四选一，覆盖物理/化学/生物/天文/地球科学），非官方原始数据；联网主机可替换为官方抽样。",
       "recommends_judge": false,
       "source_kind": "hf_dataset",
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "general_llm",
+      "capabilities": [
+        "knowledge",
+        "reasoning"
+      ]
     },
     {
       "id": "ceval-basic",
@@ -118,7 +129,12 @@
       "access": "联网主机运行 tools/fetch_datasets.py 拉取官方抽样替换本样本；当前为本地构造的代表性样本。",
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 30 题代表性样本（结构对齐 C-Eval 四选一），非官方原始数据；fetch 可替换。",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "general_llm",
+      "capabilities": [
+        "knowledge",
+        "china_specific"
+      ]
     },
     {
       "id": "cmmlu-basic",
@@ -156,7 +172,12 @@
       "sample_note": "本地构造 10 题代表性样本（宪法/民法/婚龄/地理/历史/传统文化等中国特定知识四选一），非官方原始数据。",
       "recommends_judge": false,
       "source_kind": "hf_dataset",
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "general_llm",
+      "capabilities": [
+        "knowledge",
+        "china_specific"
+      ]
     },
     {
       "id": "gsm8k-basic",
@@ -192,7 +213,12 @@
       "access": "联网主机运行 tools/fetch_datasets.py 拉取官方抽样替换本样本；当前为本地构造的代表性样本。",
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 25 题代表性样本（结构对齐 GSM8K 数值答案），非官方原始数据；fetch 可替换。",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "general_llm",
+      "capabilities": [
+        "reasoning",
+        "math"
+      ]
     },
     {
       "id": "math-basic",
@@ -230,7 +256,12 @@
       "sample_note": "本地构造 10 题代表性样本（数列/代数/概率/立体几何/对数），答案为唯一数值，已逐题核对，非官方原始数据。",
       "recommends_judge": false,
       "source_kind": "hf_dataset",
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "general_llm",
+      "capabilities": [
+        "reasoning",
+        "math"
+      ]
     },
     {
       "id": "mmlu-en-basic",
@@ -265,7 +296,12 @@
       "access": "联网主机运行 tools/fetch_datasets.py 拉取官方抽样替换本样本；当前为本地构造的代表性样本。",
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 40 题代表性样本（结构对齐 MMLU 四选一），非官方原始数据；fetch 可替换为官方抽样。",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "general_llm",
+      "capabilities": [
+        "knowledge",
+        "reasoning"
+      ]
     },
     {
       "id": "agentharm-advanced",
@@ -301,7 +337,12 @@
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 15 题代表性样本，覆盖 11 类有害请求（恶意软件/欺诈/骚扰/非法药物/虚假信息/网络攻击/物理危害/自残/版权/伪造/舆论操纵），gold 为合规拒绝回答，对应 permission 评分器。非官方原始数据；联网主机跑 fetch --only agentharm-advanced --force 可替换为官方抽样（许可需先确认）。",
       "sample_built": "2026-09-17",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "safety",
+      "capabilities": [
+        "safety_refusal",
+        "content_safety"
+      ]
     },
     {
       "id": "consistency-advanced",
@@ -339,7 +380,12 @@
       "source_kind": "internal",
       "sample_note": "本地构造 8 题，每题给出互相冲突的两个来源，要求输出 canonical_value/source/conflict_detected 后断言其采用当前生效口径并显式标注冲突。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "integration_risk",
+      "capabilities": [
+        "output_contract",
+        "cross_env_consistency"
+      ]
     },
     {
       "id": "idempotency-advanced",
@@ -377,7 +423,12 @@
       "source_kind": "internal",
       "sample_note": "本地构造 8 题，每题要求输出含 decision/reason_code 的 JSON，check_code 断言决策取值正确（如重复键必须 skip、结果未知必须 reconcile）。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "integration_risk",
+      "capabilities": [
+        "fallback",
+        "idempotency"
+      ]
     },
     {
       "id": "injection-advanced",
@@ -416,7 +467,12 @@
       "source_kind": "internal",
       "sample_note": "本地构造 10 题，每题标注 injection_type 与对应的 denied_tools；gold 为「识别注入 + 拒绝执行 + 回到原任务」的合规回复。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "integration_risk",
+      "capabilities": [
+        "permission",
+        "prompt_injection"
+      ]
     },
     {
       "id": "integration-attribution",
@@ -450,7 +506,12 @@
       "scenario": "验收「责任归属」——出事能否追溯依据；争议定责/交付问责必备。",
       "access": "已随仓库预置（examples/integration_attribution.jsonl）。",
       "source_kind": "internal",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "integration_risk",
+      "capabilities": [
+        "output_contract",
+        "attribution"
+      ]
     },
     {
       "id": "integration-contract",
@@ -484,7 +545,12 @@
       "scenario": "验收「输出契约」——下游消费方能否稳定解析 Agent 输出；接口对接前必查。",
       "access": "已随仓库预置（examples/integration_contract.jsonl）。",
       "source_kind": "internal",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "integration_risk",
+      "capabilities": [
+        "fallback",
+        "output_contract"
+      ]
     },
     {
       "id": "integration-fallback",
@@ -518,7 +584,12 @@
       "scenario": "验收「失效兜底」——依赖宕机时 Agent 是否体面失败而非崩溃。",
       "access": "已随仓库预置（examples/integration_fallback.jsonl）。",
       "source_kind": "internal",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "integration_risk",
+      "capabilities": [
+        "fallback",
+        "attribution"
+      ]
     },
     {
       "id": "integration-permission",
@@ -552,7 +623,12 @@
       "scenario": "验收「权限边界」——Agent 在越权请求下是否正确拒绝；交付验收门禁必备。",
       "access": "已随仓库预置（examples/integration_permission.jsonl）。",
       "source_kind": "internal",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "integration_risk",
+      "capabilities": [
+        "permission",
+        "attribution"
+      ]
     },
     {
       "id": "jailbreak-advanced",
@@ -590,7 +666,12 @@
       "source_kind": "internal",
       "sample_note": "本地构造 10 题，每题标注 jailbreak_type；请求本身以抽象方式描述，不含任何可操作的有害细节，gold 均为合规拒绝。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "safety",
+      "capabilities": [
+        "safety_refusal",
+        "jailbreak"
+      ]
     },
     {
       "id": "pii-advanced",
@@ -628,7 +709,12 @@
       "source_kind": "internal",
       "sample_note": "本地构造 8 题，敏感数据均为虚构占位值（如 13800138000），check_code 断言其不得出现在输出、且输出满足字段契约。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "integration_risk",
+      "capabilities": [
+        "content_safety",
+        "privacy"
+      ]
     },
     {
       "id": "rgb-advanced",
@@ -665,7 +751,11 @@
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 12 题代表性样本，覆盖 RGB 的四类幻觉场景（拒绝回答/反向诱导/误引纠正/主体变更），grader=judge 需配 judge 模型。非官方原始数据；联网主机跑 fetch --only rgb-advanced --force 可替换。",
       "sample_built": "2026-09-17",
-      "recommends_judge": true
+      "recommends_judge": true,
+      "domain": "rag_agent",
+      "capabilities": [
+        "rag_faithfulness"
+      ]
     },
     {
       "id": "safetybench-advanced",
@@ -703,7 +793,12 @@
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 10 题代表性样本，覆盖 SafetyBench 七类并补充未成年人保护与医疗/金融越界两类实务场景；crisis_referral 字段记录危机转介要求。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "safety",
+      "capabilities": [
+        "safety_refusal",
+        "content_safety"
+      ]
     },
     {
       "id": "bfcl-deep",
@@ -742,7 +837,12 @@
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 15 题代表性样本（单轮函数调用，覆盖天气/航班/邮件/日历/行情/翻译/计算/查询/预订等常见工具），gold 为标准调用 JSON，对应 contract 评分器校验输出契约。非官方原始数据；联网主机跑 fetch --only bfcl-deep --force 可替换（拉 GitHub raw JSON）。",
       "sample_built": "2026-09-17",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "tool_use_agent",
+      "capabilities": [
+        "tool_use",
+        "output_contract"
+      ]
     },
     {
       "id": "cmeval-deep",
@@ -762,24 +862,29 @@
       "aligned_to": "CMExam · MedQA",
       "license": "见官方仓库（商用前需确认）",
       "commercial_use": false,
-      "version": "v1.0 (数据集本身 2023)",
-      "updated": "2023-06",
+      "version": "v1.0 (官方 test 子集 6811 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
       "data_format": "JSONL (harness Case, MCQ)",
       "recommended_grader": "code(exact/contains)",
       "suite_file": "cmeval_deep.jsonl",
-      "cases_count": 10,
-      "full_scale": "约 68,000 题（国家医师资格考试风格）",
-      "est_duration_min": 4,
-      "est_tokens": 12000,
+      "cases_count": 6811,
+      "full_scale": "官方 test 子集 6811 题（CMExam 总库约 68,000 题国家医师资格考试风格，本集取官方 test 切分）",
+      "est_duration_min": 227,
+      "est_tokens": 1362200,
       "languages": [
         "zh"
       ],
       "scenario": "医疗行业 Agent 的业务正确性基线；同时是「医疗建议越界」的红线素材来源（见 safetybench-advanced 的 SB-09）。",
-      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 fetch。许可待确认。",
-      "source_kind": "hf_dataset",
-      "sample_note": "本地构造 10 题代表性样本（心率/体温/CPR 频率/传染病三环节/高血压与糖尿病诊断切点/处方药管理/献血量/抗生素使用/BMI），均取公认临床常识口径，已逐题核对。非官方原始数据。",
+      "access": "已落地官方 test 子集 6811 题（cmeval_deep.jsonl），可直接跑；许可待确认，商用前需法务确认。",
+      "source_kind": "official",
+      "sample_note": "官方 CMExam test 子集全量 6811 题，逐题取公认临床常识口径与官方 gold 答案；非抽样构造。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_medical"
+      ]
     },
     {
       "id": "fineval-deep",
@@ -799,24 +904,29 @@
       "aligned_to": "FinEval",
       "license": "CC-BY-NC-4.0（非商用）",
       "commercial_use": false,
-      "version": "v1.0 (数据集本身 2023)",
-      "updated": "2023-08",
+      "version": "v1.0 (官方 val+dev 1321 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
       "data_format": "JSONL (harness Case, MCQ)",
       "recommended_grader": "code(exact/contains)",
       "suite_file": "fineval_deep.jsonl",
-      "cases_count": 10,
-      "full_scale": "约 4,600 题 / 34 学科（金融学术与执业）",
-      "est_duration_min": 4,
-      "est_tokens": 12000,
+      "cases_count": 1321,
+      "full_scale": "官方 val+dev 1321 题（FinEval 总约 4,600 题 / 34 学科；test 切分官方未附 gold 答案，未纳入本集）",
+      "est_duration_min": 44,
+      "est_tokens": 264200,
       "languages": [
         "zh"
       ],
       "scenario": "金融行业客户问「你有没有我们行业的用例」时的正面回答；业务正确性（而非通用能力）口径。注意许可能为非商用，商用前需法务确认。",
-      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 fetch。许可 CC-BY-NC 类，商用前须法务确认。",
-      "source_kind": "hf_dataset",
-      "sample_note": "本地构造 10 题代表性样本（A 股涨跌幅、PE 计算、LPR、分散投资、存款准备金率、债券价格与利率、基金管理人职责、权益类资产、复利计算、定期报告范围），答案已逐题核对。非官方原始数据。",
+      "access": "已落地官方 val+dev 1321 题（fineval_deep.jsonl），可直接跑；许可 CC-BY-NC 类，商用前须法务确认。",
+      "source_kind": "official",
+      "sample_note": "官方 FinEval val+dev 全量 1321 题，沿用官方 gold 答案；test 切分无 gold 未纳入。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_finance"
+      ]
     },
     {
       "id": "humaneval-deep",
@@ -853,7 +963,11 @@
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 10 题代表性样本（简单到中等难度：字符串/数组/哈希/递归/区间合并/括号匹配等），每题附 2–3 条断言，gold 为参考实现。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "coding_agent",
+      "capabilities": [
+        "code_generation"
+      ]
     },
     {
       "id": "ifeval-deep",
@@ -891,7 +1005,11 @@
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 8 题代表性样本，约束类型覆盖句数/编号列表/纯中文/裸 JSON/必含词/前缀与禁标点/词数区间/Markdown 表格，gold 逐题满足全部约束并已实测。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "general_llm",
+      "capabilities": [
+        "instruction_following"
+      ]
     },
     {
       "id": "lawbench-deep",
@@ -910,24 +1028,29 @@
       "official_url": "https://huggingface.co/datasets/SuTao-Projects/LawBench",
       "license": "Apache-2.0",
       "commercial_use": true,
-      "version": "v1.0",
-      "updated": "2024-09",
+      "version": "v1.0 (gated 镜像 5/20 任务 2500 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
       "data_format": "JSONL (harness Case, MCQ)",
       "recommended_grader": "code(exact)",
       "suite_file": "lawbench_deep.jsonl",
-      "cases_count": 25,
-      "full_scale": "约 9,700 题（20 任务）",
-      "est_duration_min": 10,
-      "est_tokens": 35000,
+      "cases_count": 2500,
+      "full_scale": "官方 20 任务约 9,700 题；本集为 gated 镜像可取得的前 5 任务共 2500 题（其余 15 任务仓库 gated 需授权）",
+      "est_duration_min": 83,
+      "est_tokens": 500000,
       "languages": [
         "zh"
       ],
       "scenario": "法律行业 Agent 的业务正确性基线；可商用（Apache-2.0）。",
-      "access": "已随仓库预置可跑样本；官方抽样需联网主机执行 tools/fetch_datasets.py --only lawbench-deep --sample 100 --force。",
-      "source_kind": "hf_dataset",
-      "sample_note": "本地构造 25 题代表性样本（民法典/刑法/宪法/诉讼法/公司法等实体与程序法常识四选一），答案经逐题核对。非官方原始数据；联网主机跑 fetch --only lawbench-deep --force 可替换为官方抽样（Apache-2.0 可商用）。",
-      "sample_built": "2026-09-17",
-      "recommends_judge": false
+      "access": "已落地 gated 镜像前 5/20 任务 2500 题（lawbench_deep.jsonl），可直接跑；若获官方授权可补全至全量。Apache-2.0 可商用。",
+      "source_kind": "official_mirror_partial",
+      "sample_note": "官方 LawBench 前 5 任务（镜像可取得部分）全量 2500 题，沿用官方 gold 答案；另 15 任务仓库 gated 未纳入。",
+      "sample_built": "2026-09-18",
+      "recommends_judge": false,
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_legal"
+      ]
     },
     {
       "id": "longcontext-deep",
@@ -964,7 +1087,12 @@
       "source_kind": "internal",
       "sample_note": "本地构造 8 题，每题含 700–1100 字长上下文，meta 标注 needle / distractors / context_span，gold 为唯一数值或日期。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "general_llm",
+      "capabilities": [
+        "instruction_following",
+        "long_context"
+      ]
     },
     {
       "id": "multiagent-handoff-deep",
@@ -1002,7 +1130,12 @@
       "source_kind": "internal",
       "sample_note": "本地构造 8 题，覆盖招投标评审委员会／虚拟研发团队／智能投研／内容工作室／能源运营／红蓝对抗／客服升级链／跨部门审批八个多智能体场景；meta.expected_steps 为交接清单，gold 为逐步轨迹。非官方原始数据。",
       "recommends_judge": false,
-      "sample_built": "2026-09-17"
+      "sample_built": "2026-09-17",
+      "domain": "multi_agent",
+      "capabilities": [
+        "multi_agent_handoff",
+        "attribution"
+      ]
     },
     {
       "id": "ragbench-deep",
@@ -1039,7 +1172,12 @@
       "source_kind": "hf_dataset",
       "sample_note": "本地构造 12 题代表性样本（端到端 RAG：忠实度/相关性/上下文利用，跨制度·流程·合同·技术·安全五类业务语料），grader=judge 需配 judge 模型。非官方原始数据；联网主机跑 fetch --only ragbench-deep --force 可替换为官方抽样（MIT 可商用）。",
       "sample_built": "2026-09-17",
-      "recommends_judge": true
+      "recommends_judge": true,
+      "domain": "rag_agent",
+      "capabilities": [
+        "knowledge",
+        "rag_faithfulness"
+      ]
     },
     {
       "id": "agentbench",
@@ -1076,7 +1214,12 @@
       "requires_env": true,
       "env_notes": "需 Docker/DB/OS/网络等多环境栈。",
       "source_kind": "git",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "general_llm",
+      "capabilities": [
+        "multi_env",
+        "multi_step_task"
+      ]
     },
     {
       "id": "gaia",
@@ -1113,7 +1256,12 @@
       "requires_env": true,
       "env_notes": "需浏览器/代码/文件等多工具执行环境。",
       "source_kind": "hf_dataset",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "general_assistant",
+      "capabilities": [
+        "multi_step_task",
+        "tool_use"
+      ]
     },
     {
       "id": "multiagentbench",
@@ -1150,7 +1298,12 @@
       "requires_env": true,
       "env_notes": "需多环境栈 + 多智能体编排框架；资源最重的一类。",
       "source_kind": "git",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "multi_agent",
+      "capabilities": [
+        "multi_env",
+        "multi_agent_handoff"
+      ]
     },
     {
       "id": "osworld",
@@ -1187,7 +1340,12 @@
       "requires_env": true,
       "env_notes": "需虚拟机/容器 + 桌面自动化栈；资源最重。",
       "source_kind": "git",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "gui_web_agent",
+      "capabilities": [
+        "multi_step_task",
+        "gui_web"
+      ]
     },
     {
       "id": "swebench-lite",
@@ -1224,7 +1382,12 @@
       "requires_env": true,
       "env_notes": "需 Docker 沙箱执行被测 Agent 的补丁并跑仓库测试；资源重、耗时长，单题分钟级。",
       "source_kind": "hf_dataset",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "coding_agent",
+      "capabilities": [
+        "code_generation",
+        "repo_repair"
+      ]
     },
     {
       "id": "swebench-verified",
@@ -1261,7 +1424,12 @@
       "requires_env": true,
       "env_notes": "每题需检出对应仓库与提交、应用补丁、运行仓库自身测试；单题分钟级、镜像体积大。",
       "source_kind": "hf_dataset",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "coding_agent",
+      "capabilities": [
+        "code_generation",
+        "repo_repair"
+      ]
     },
     {
       "id": "tau-bench",
@@ -1298,7 +1466,12 @@
       "requires_env": true,
       "env_notes": "需沙箱 + 模拟用户 + 领域 API 桩；多轮。",
       "source_kind": "git",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "tool_use_agent",
+      "capabilities": [
+        "tool_use",
+        "multi_turn"
+      ]
     },
     {
       "id": "tau2-bench",
@@ -1336,7 +1509,12 @@
       "requires_env": true,
       "env_notes": "需沙箱、模拟用户与领域 API 桩；多轮、耗时长。",
       "source_kind": "git",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "tool_use_agent",
+      "capabilities": [
+        "tool_use",
+        "multi_turn"
+      ]
     },
     {
       "id": "terminal-bench",
@@ -1374,7 +1552,12 @@
       "requires_env": true,
       "env_notes": "需容器镜像与任务级校验脚本；单任务分钟级。",
       "source_kind": "git",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "coding_agent",
+      "capabilities": [
+        "multi_step_task",
+        "repo_repair"
+      ]
     },
     {
       "id": "webarena",
@@ -1411,7 +1594,319 @@
       "requires_env": true,
       "env_notes": "需 Docker 起 4 个自托管 Web 应用 + 浏览器驱动；环境重。",
       "source_kind": "git",
-      "recommends_judge": false
+      "recommends_judge": false,
+      "domain": "gui_web_agent",
+      "capabilities": [
+        "multi_step_task",
+        "gui_web"
+      ]
+    },
+    {
+      "id": "edueval-deep",
+      "name": "EduEval（中文教育·深度全集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 教育",
+      "object_axes": [
+        "vertical_education"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "single_turn_qa",
+        "open_qa"
+      ],
+      "description": "中文 K-12 教育基准：24 类任务（真实考题、课堂对话、作文等），覆盖学科知识与教学场景。",
+      "source": "Maerzs/E_edueval · arXiv:2512.00290 · 浙江师范大学等",
+      "official_url": "https://github.com/Maerzs/E_edueval",
+      "aligned_to": "EduEval",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (官方全集 10,650 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
+      "data_format": "JSONL (harness Case, MCQ+SAQ)",
+      "recommended_grader": "code(contains)+judge(rubric)",
+      "suite_file": "edueval_deep.jsonl",
+      "cases_count": 10650,
+      "full_scale": "官方 11,000+ 题（24 任务类型，K-12 中文教育，含真实考题/课堂对话/作文）",
+      "est_duration_min": 355,
+      "est_tokens": 2130000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "教育行业 Agent 的业务正确性基线；K-12 学科知识 + 教学场景理解。",
+      "access": "已落地官方全集 10,650 题（edueval_deep.jsonl），含 508 道开放式（judge）；可直接跑。",
+      "source_kind": "official",
+      "sample_note": "官方 EduEval 全集 10,650 题（10,142 MCQ + 508 开放式），沿用官方 gold 与 rubric；非抽样构造。",
+      "recommends_judge": true,
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_education"
+      ]
+    },
+    {
+      "id": "msgabench-deep",
+      "name": "MSGABench（政务·深度全集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 政务",
+      "object_axes": [
+        "vertical_government"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "single_turn_qa",
+        "open_qa",
+        "document_generation"
+      ],
+      "description": "政务大模型基准：3 场景 8 任务 14 领域（公文自动化、政务问答、政务理解/决策支持）。",
+      "source": "cmTCEC/MSGABench · ACM DOI 10.1145/3716854",
+      "official_url": "https://github.com/cmTCEC/MSGABench",
+      "aligned_to": "MSGABench",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (官方全集 16,644 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
+      "data_format": "JSONL (harness Case, MCQ+SAQ)",
+      "recommended_grader": "code(contains)+judge(rubric)",
+      "suite_file": "msgabench_deep.jsonl",
+      "cases_count": 16644,
+      "full_scale": "官方 46,451 条目（公文自动化 13,572 分类 + 1,000 生成 + 6,022 摘要；政务 Q&A 233 NLU + 2,081 QA + 11,529 情感；政务理解 3,537 + 决策支持 8,477）",
+      "est_duration_min": 555,
+      "est_tokens": 3328800,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "政务行业 Agent 的业务正确性基线；公文自动化、政务问答与决策支持口径。",
+      "access": "已落地官方全集 16,644 题（msgabench_deep.jsonl），含 348 道开放式（judge）；可直接跑。",
+      "source_kind": "official",
+      "sample_note": "官方 MSGABench 全集 16,644 题（16,296 MCQ + 348 开放式），沿用官方 gold 与 rubric；非抽样构造。",
+      "recommends_judge": true,
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_government"
+      ]
+    },
+    {
+      "id": "secbench-deep",
+      "name": "SecBench（网络安全·公开全集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 网络安全",
+      "object_axes": [
+        "vertical_cybersec"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "single_turn_qa",
+        "open_qa"
+      ],
+      "description": "网络安全基准（腾讯朱雀/科恩实验室等）：覆盖漏洞、恶意代码、Web 安全、密码学等，含 MCQ 与 SAQ。",
+      "source": "secbench-git/SecBench · arXiv:2412.20787",
+      "official_url": "https://github.com/secbench-git/SecBench",
+      "aligned_to": "SecBench",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (官方公开 release 3,000 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
+      "data_format": "JSONL (harness Case, MCQ+SAQ)",
+      "recommended_grader": "code(contains)+judge(rubric)",
+      "suite_file": "secbench_deep.jsonl",
+      "cases_count": 3000,
+      "full_scale": "官方总 44,823 MCQ + 3,087 SAQ；公开 release 仅 3,000（MCQs 2,730 + SAQs 270）",
+      "est_duration_min": 100,
+      "est_tokens": 600000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "网络安全行业 Agent 的业务正确性基线；漏洞/恶意代码/Web 安全/密码学口径。",
+      "access": "已落地官方公开 release 3,000 题（secbench_deep.jsonl），含 270 道开放式（judge）；可直接跑。完整 47,910 题未公开。",
+      "source_kind": "official_sample",
+      "sample_note": "官方公开 release 全量 3,000 题（2,730 MCQ + 270 SAQ），沿用官方 gold 与 rubric；官方总库 47,910 题未公开故未纳入。",
+      "recommends_judge": true,
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_cybersec"
+      ]
+    },
+    {
+      "id": "elecbench-deep",
+      "name": "ElecBench（电力能源·公开子集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 电力能源",
+      "object_axes": [
+        "vertical_energy"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "open_qa",
+        "reasoning"
+      ],
+      "description": "电力调度评测基准（IEEE PESGM 2025 Best Paper）：general/monitoring/dispatch/blackstart 四类电力专业知识与推理。",
+      "source": "xiyuan-zhou/ElecBench · arXiv:2407.05365",
+      "official_url": "https://github.com/xiyuan-zhou/ElecBench-a-Power-Dispatch-Evaluation-Benchmark-for-Large-Language-Models",
+      "aligned_to": "ElecBench",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (官方公开子集 288 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
+      "data_format": "JSONL (harness Case, SAQ/judge)",
+      "recommended_grader": "judge(rubric)",
+      "suite_file": "elecbench_deep.jsonl",
+      "cases_count": 288,
+      "full_scale": "官方 4 个 jsonl（general/monitoring/dispatch/blackstart），partial open source",
+      "est_duration_min": 10,
+      "est_tokens": 57600,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "电力能源行业 Agent 的业务正确性基线；电力调度/监测/黑启动专业知识与推理。",
+      "access": "已落地官方公开子集 288 题（elecbench_deep.jsonl，全为开放式 judge）；可直接跑。完整集部分未公开。",
+      "source_kind": "official_sample",
+      "sample_note": "官方 ElecBench 公开子集 288 题（general/monitoring/dispatch/blackstart），开放式题按 rubric 评测；完整集部分未公开。",
+      "recommends_judge": true,
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_energy"
+      ]
+    },
+    {
+      "id": "agrieval-deep",
+      "name": "AgriEval（农业·深度全集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 农业",
+      "object_axes": [
+        "vertical_agriculture"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "single_turn_qa",
+        "open_qa"
+      ],
+      "description": "农业基准（哈工大）：6 大类 29 子类（种植、养殖、植保、农机、农业经济等），含选择与开放问答。",
+      "source": "YanPioneer/AgriEval · AAAI'26 · arXiv:2507.21773",
+      "official_url": "https://github.com/YanPioneer/AgriEval",
+      "aligned_to": "AgriEval",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (官方全集 16,864 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
+      "data_format": "JSONL (harness Case, MCQ+SAQ)",
+      "recommended_grader": "code(contains)+judge(rubric)",
+      "suite_file": "agrieval_deep.jsonl",
+      "cases_count": 16864,
+      "full_scale": "官方 14,697 选择 + 2,167 开放问答（6 大类 29 子类）",
+      "est_duration_min": 562,
+      "est_tokens": 3372800,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "农业行业 Agent 的业务正确性基线；种植/养殖/植保/农机/农业经济口径。",
+      "access": "已落地官方全集 16,864 题（agrieval_deep.jsonl），含 2,167 道开放式（judge）；可直接跑。",
+      "source_kind": "official",
+      "sample_note": "官方 AgriEval 全集 16,864 题（14,697 MCQ + 2,167 开放式），沿用官方 gold 与 rubric；非抽样构造。",
+      "recommends_judge": true,
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_agriculture"
+      ]
+    },
+    {
+      "id": "telecom-deep",
+      "name": "TeleCom-Bench（电信·公开抽样）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 电信",
+      "object_axes": [
+        "vertical_telecom"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "single_turn_qa",
+        "open_qa"
+      ],
+      "description": "电信基准（KDD 2026）：12 评测集（知识理解 KC + 端到端应用 KA 6 任务），覆盖通信工程与运营知识。",
+      "source": "ZTE-AICloud/TeleCom-Bench · KDD 2026 · arXiv:2605.18025",
+      "official_url": "https://github.com/ZTE-AICloud/TeleCom-Bench",
+      "aligned_to": "TeleCom-Bench",
+      "license": "见官方仓库（商用前需确认）",
+      "commercial_use": false,
+      "version": "v1.0 (官方仓库抽样 175 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
+      "data_format": "JSONL (harness Case, MCQ+SAQ)",
+      "recommended_grader": "code(contains)+judge(rubric)",
+      "suite_file": "telecom_deep.jsonl",
+      "cases_count": 175,
+      "full_scale": "官方 12 评测集 22,678 样本（KC 知识理解 + KA 端到端应用 6 任务）；GitHub 仓库仅含抽样数据，非完整公开",
+      "est_duration_min": 6,
+      "est_tokens": 35000,
+      "languages": [
+        "zh"
+      ],
+      "scenario": "电信行业 Agent 的业务正确性基线；通信工程与运营知识口径（样本有限，作初步覆盖）。",
+      "access": "已落地官方仓库抽样 175 题（telecom_deep.jsonl，含 17 道开放式 judge）；完整 22,678 题未公开。",
+      "source_kind": "official_sample",
+      "sample_note": "官方仓库公开抽样 175 题（158 MCQ + 17 开放式），沿用官方 gold 与 rubric；完整 22,678 题未公开故未纳入。",
+      "recommends_judge": true,
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_telecom"
+      ]
+    },
+    {
+      "id": "industry-deep",
+      "name": "IndustryBench（制造·深度全集）",
+      "tier": "deep",
+      "category": "垂直行业智能体 / 制造",
+      "object_axes": [
+        "vertical_manufacturing"
+      ],
+      "dimensions": [
+        "domain_knowledge",
+        "open_qa",
+        "multilingual"
+      ],
+      "description": "工业采购问答基准（阿里）：2,049 项多语（中+英/俄/越）工业采购 QA，grounded in GB/T 国标。",
+      "source": "alibaba-multimodal-industrial-ai/IndustryBench · arXiv:2605.10267 · MIT",
+      "official_url": "https://github.com/alibaba-multimodal-industrial-ai/IndustryBench",
+      "aligned_to": "IndustryBench",
+      "license": "MIT",
+      "commercial_use": true,
+      "version": "v1.0 (官方全集 2,049 题, 2026-09-18 转换)",
+      "updated": "2026-09-18",
+      "data_format": "JSONL (harness Case, SAQ/judge)",
+      "recommended_grader": "judge(rubric)",
+      "suite_file": "industry_deep.jsonl",
+      "cases_count": 2049,
+      "full_scale": "官方 2,049 项多语（中+英/俄/越）工业采购 QA，grounded in GB/T 国标",
+      "est_duration_min": 68,
+      "est_tokens": 409800,
+      "languages": [
+        "zh",
+        "en",
+        "ru",
+        "vi"
+      ],
+      "scenario": "制造行业 Agent 的业务正确性基线；工业采购知识与国标口径（MIT 可商用）。",
+      "access": "已落地官方全集 2,049 题（industry_deep.jsonl，1,892 开放式 judge + 157 MCQ）；可直接跑。MIT 可商用。",
+      "source_kind": "official",
+      "sample_note": "官方 IndustryBench 全集 2,049 题（1,892 开放式 + 157 MCQ，多语 zh/en/ru/vi），开放式按 rubric 评测；非抽样构造。",
+      "recommends_judge": true,
+      "sample_built": "2026-09-18",
+      "domain": "vertical",
+      "capabilities": [
+        "knowledge",
+        "domain_manufacturing"
+      ]
     }
-  ]
+  ],
+  "taxonomy_version": "2026-09-18",
+  "categories_note": "分类以受控枚举为准：一级 domain（评测对象域，见 core/datasets_taxonomy.py::DOMAINS）、二级 capabilities（能力标签，同上 CAPABILITIES）。原 category 字段降级为「细分说明」，仅作展示，不参与分组与统计。"
 }
