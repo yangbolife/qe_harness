@@ -42,6 +42,13 @@ Thumbs.db
 .env.*
 *.secret
 *credential*
+# 一键推送脚本含明文 PAT，绝不入库
+push_to_github.sh
 
 # Node (web console build, if any)
 node_modules/
+
+# 数据集目录的运行时产物（写回 catalog 时自动生成，不进仓库）
+eval_harness/datasets/catalog.json.bak.*
+eval_harness/datasets/.trash/
+eval_harness/datasets/*.tmp

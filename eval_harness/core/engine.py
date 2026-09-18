@@ -15,10 +15,11 @@ Phase 2：asyncio 并发调度 + 令牌桶限流 + 指数退避 + 熔断(inconcl
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 import time
 from dataclasses import asdict
-from typing import Optional
+from typing import Optional, Callable
 
 from .graders import GRADERS
 from .loader import load_suite
@@ -37,6 +38,13 @@ from .scaffold import run_three_way
 from .gitinfo import collect_git_info
 from . import scorers  # noqa: F401  注册 N1 预置评测器库（autoevals 平替）
 from . import trajectory_eval  # noqa: F401  注册 trajectory_eval 评分器（轨迹级评测框架）
+
+
+async def _maybe_await(x):
+    """若是协程则 await，否则原样返回（progress_callback 可同步可异步）。"""
+    if inspect.isawaitable(x):
+        return await x
+    return x
 
 
 def _build_grader(name: str, judge_provider=None, human_labels=None):
@@ -300,6 +308,11 @@ async def run_suite_async(
     external_id: Optional[str] = None,
     # —— 工作台回链 meta（O14 回链）：contract_id / callback_url 等，随运行记录 —— #
     wb_meta: Optional[dict] = None,
+    # —— R7 / R3：运行态预写 + 实时进度回调 —— #
+    # run_id：调用方预生成并回传，使运行列表在引擎开始即显示「运行中」；
+    # progress_callback(done, total, last_case_dict)：每题完成回调，供 Web 轮询实时进度。
+    run_id: Optional[str] = None,
+    progress_callback: Optional[Callable] = None,
 ) -> list[CaseResult]:
     provider_kwargs = provider_kwargs or {}
     provider = PROVIDERS.get(provider_name)(**provider_kwargs)
@@ -316,69 +329,104 @@ async def run_suite_async(
     # O13：token/成本预算闸门（与 judge_budget 兼容，取较大者）
     budget = BudgetGate(max(cost_budget, judge_budget), token_budget)
 
-    tracer = get_tracer()
-    with tracer.start_span("eval.run", suite=suite_path, cases=len(cases),
-                           provider=provider_name) as run_span:
-        results = await asyncio.gather(*[
-            _run_one(
-                case, provider=provider, judge_provider=judge_provider,
-                human_labels=human_labels, default_grader=default_grader, combine=combine,
-                trials=max(1, trials), trial_policy=trial_policy,
-                inconclusive_ratio=inconclusive_ratio, sem=sem, bucket=bucket,
-                circuit=circuit, retry=retry_policy, budget=budget,
-            )
-            for case in cases
-        ])
-        results = ResultList(results)
-        run_span.set_attribute("passed", sum(1 for r in results if r.passed))
-        run_span.set_attribute("inconclusive", sum(1 for r in results if r.inconclusive))
-
-    # 创新③：脚手架三方解耦
-    tw = None
-    if three_way:
-        tw = await run_three_way(
-            suite_path, provider_name=provider_name, provider_kwargs=provider_kwargs,
-            judge_provider_name=judge_provider_name, judge_provider_kwargs=judge_provider_kwargs,
-            trials=max(1, trials), trial_policy=trial_policy, rate=rate, concurrency=concurrency,
-        )
-
-    # 版本钉（创新④）+ 代码版本钉（N3 并入增强）
-    git_info = collect_git_info()
-    meta = {
-        "provider": provider_name, "judge_provider": judge_provider_name,
-        "grader": default_grader, "trials": max(1, trials), "trial_policy": trial_policy,
-        "combine": combine, "concurrency": concurrency, "rate": rate,
-        "harness_version": HARNESS_VERSION,
-        "model_version": model_version or provider_name,
-        "dataset_version": dataset_version or "manual",
-        "three_way": three_way,
-    }
-    for k, v in git_info.items():
-        meta[f"git_{k}"] = v
-    if params:
-        meta["params"] = params  # N8：附加评测参数（Parameters）
-    # O13：预算执行结果
-    cost_used = sum(float(g.cost_usd or 0.0) for r in results for g in r.graders
-                   if getattr(g, "grader", "") == "judge")
-    budget_aborted = budget.exceeded
-    meta["cost_used_usd"] = round(cost_used, 6)
-    meta["token_budget"] = token_budget
-    meta["cost_budget"] = cost_budget
-    meta["budget_aborted"] = budget_aborted
-    meta["owner"] = owner
-    meta["visibility"] = visibility
-    # 回链 meta：被工作台调用时携带合同 id / 回链 URL，随运行落库供双向回查
-    if wb_meta:
-        meta["wb_meta"] = wb_meta
-
-    # Phase 4：持久化落库
+    # —— R7 / R3：运行态预写（在 gather 前，运行列表即可见「运行中」） —— #
+    run_id_local = run_id
     if store is not None:
-        await store.save_run(
-            run_name or suite_path, meta, results, three_way=tw,
+        run_id_local = run_id or str(uuid.uuid4())
+        # 预写最小 meta（gather 不依赖这些字段；cost 等稍后补全）
+        _pending_meta = {
+            "provider": provider_name, "judge_provider": judge_provider_name,
+            "grader": default_grader, "trials": max(1, trials), "trial_policy": trial_policy,
+            "combine": combine, "concurrency": concurrency, "rate": rate,
+            "harness_version": HARNESS_VERSION,
+            "model_version": model_version or provider_name,
+            "dataset_version": dataset_version or "manual",
+        }
+        await store.create_run_pending(
+            run_id_local, run_name or suite_path, _pending_meta,
             owner=owner, visibility=visibility, external_id=external_id,
-            token_budget_usd=max(cost_budget, judge_budget),
-            cost_used_usd=round(cost_used, 6), budget_aborted=budget_aborted,
+            model_version=model_version, provider=provider_name,
+            judge_provider=judge_provider_name, grader=default_grader,
         )
+
+    tracer = get_tracer()
+    total_cases = len(cases)
+
+    async def _tracked(case, idx):
+        res = await _run_one(
+            case, provider=provider, judge_provider=judge_provider,
+            human_labels=human_labels, default_grader=default_grader, combine=combine,
+            trials=max(1, trials), trial_policy=trial_policy,
+            inconclusive_ratio=inconclusive_ratio, sem=sem, bucket=bucket,
+            circuit=circuit, retry=retry_policy, budget=budget,
+        )
+        if progress_callback is not None:
+            try:
+                await _maybe_await(progress_callback(idx + 1, total_cases, result_to_row(res)))
+            except Exception:  # 进度回调失败不应中断评测
+                pass
+        return res
+
+    try:
+        with tracer.start_span("eval.run", suite=suite_path, cases=total_cases,
+                               provider=provider_name) as run_span:
+            results = await asyncio.gather(*[_tracked(c, i) for i, c in enumerate(cases)])
+            results = ResultList(results)
+            run_span.set_attribute("passed", sum(1 for r in results if r.passed))
+            run_span.set_attribute("inconclusive", sum(1 for r in results if r.inconclusive))
+
+        # 创新③：脚手架三方解耦
+        tw = None
+        if three_way:
+            tw = await run_three_way(
+                suite_path, provider_name=provider_name, provider_kwargs=provider_kwargs,
+                judge_provider_name=judge_provider_name, judge_provider_kwargs=judge_provider_kwargs,
+                trials=max(1, trials), trial_policy=trial_policy, rate=rate, concurrency=concurrency,
+            )
+
+        # 版本钉（创新④）+ 代码版本钉（N3 并入增强）
+        git_info = collect_git_info()
+        meta = {
+            "provider": provider_name, "judge_provider": judge_provider_name,
+            "grader": default_grader, "trials": max(1, trials), "trial_policy": trial_policy,
+            "combine": combine, "concurrency": concurrency, "rate": rate,
+            "harness_version": HARNESS_VERSION,
+            "model_version": model_version or provider_name,
+            "dataset_version": dataset_version or "manual",
+            "three_way": three_way,
+        }
+        for k, v in git_info.items():
+            meta[f"git_{k}"] = v
+        if params:
+            meta["params"] = params  # N8：附加评测参数（Parameters）
+        # O13：预算执行结果
+        cost_used = sum(float(g.cost_usd or 0.0) for r in results for g in r.graders
+                       if getattr(g, "grader", "") == "judge")
+        budget_aborted = budget.exceeded
+        meta["cost_used_usd"] = round(cost_used, 6)
+        meta["token_budget"] = token_budget
+        meta["cost_budget"] = cost_budget
+        meta["budget_aborted"] = budget_aborted
+        meta["owner"] = owner
+        meta["visibility"] = visibility
+        # 回链 meta：被工作台调用时携带合同 id / 回链 URL，随运行落库供双向回查
+        if wb_meta:
+            meta["wb_meta"] = wb_meta
+
+        # Phase 4：持久化落库（upsert：覆盖 pending 行 → completed + end_time）
+        if store is not None:
+            await store.save_run(
+                run_name or suite_path, meta, results, three_way=tw,
+                owner=owner, visibility=visibility, external_id=external_id,
+                token_budget_usd=max(cost_budget, judge_budget),
+                cost_used_usd=round(cost_used, 6), budget_aborted=budget_aborted,
+                run_id=run_id_local,
+            )
+    except Exception:
+        # R7：引擎级异常也终写状态为 failed，避免 pending 行永远「运行中」
+        if store is not None and run_id_local:
+            await store.mark_run_done(run_id_local, "failed")
+        raise
 
     if output_path:
         _dump(results, output_path)
@@ -415,6 +463,8 @@ def run_suite(
     owner: Optional[str] = None,
     visibility: str = "all",
     wb_meta: Optional[dict] = None,
+    run_id: Optional[str] = None,
+    progress_callback: Optional[Callable] = None,
 ) -> list[CaseResult]:
     """同步兼容入口：pytest / CLI 直接调用。内部委托 asyncio 引擎。"""
     return asyncio.run(run_suite_async(
@@ -428,6 +478,7 @@ def run_suite(
         run_name=run_name, model_version=model_version, dataset_version=dataset_version,
         params=params, token_budget=token_budget, cost_budget=cost_budget,
         owner=owner, visibility=visibility, wb_meta=wb_meta,
+        run_id=run_id, progress_callback=progress_callback,
     ))
 
 

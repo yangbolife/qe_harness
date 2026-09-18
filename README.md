@@ -141,12 +141,99 @@ python -m eval_harness eval_harness/examples/deepseek_essay_coach.jsonl \
 
 ```bash
 python -m eval_harness --web --web-port 8848
+# 等价写法（直启 ASGI 模块，便于指定库）：
+EVAL_DB_URL="postgresql+asyncpg://qe:qe@127.0.0.1:55432/eval_harness" \
+  python -m eval_harness.web --host 127.0.0.1 --port 8848
 # open http://127.0.0.1:8848
 ```
+
+> 界面路由用 hash（`#datasets` / `#new` / `#runs` …），可直接深链；改 `static/` 下的文件**无需重启**（同源静态直读），改 `app.py` 才需要。
 
 The console lists datasets, runs evaluations, shows per-case `response` + `graders`,
 dashboards (pass_rate + three-way split), patterns discovery, export, online monitoring,
 assets, and audit log.
+
+**数据集管理页（Datasets）** — the console has a dedicated dataset-management view over the
+pre-bundled catalog, so evaluation staff can decide *what to run* **and maintain the catalog itself**
+without reading `catalog.json`:
+
+- **受控两级分类**：一级 `domain`（评测对象域，10 个受控枚举：集成风险面 / 安全与合规 /
+  通用大模型 / 通用助手 / 编码智能体 / 工具调用智能体 / RAG 智能体 / 多智能体协作 /
+  Web·GUI 智能体 / 垂直行业），二级 `capabilities`（能力标签，29 个受控枚举）。
+  定义在 `eval_harness/core/datasets_taxonomy.py`，是分组/筛选/统计的唯一依据；
+  原 `category` 自由文本降级为「细分说明」，仅作详情展示。
+- **表格视图**：列 = 数据集 / 分类（域·能力）/ 档位 / 状态 / 题数 / **适用场景** /
+  **估算耗时** / **估算 token** / 评分器 / 许可 / 操作。默认按域分组（组头显示域名、
+  条数、一句说明），可切「按档位」「不分组」。
+- 四档分级 tab + 搜索（名称/分类/场景/来源/**能力标签**）+ 筛选（只看可运行 /
+  只看可商用 / 排除需 judge / 只看需环境占位）。
+- **增删改**：`＋ 新增数据集`（含首批用例 JSONL）、行内 `编辑`（表单化改元数据，
+  含能力标签 chips 选择器与高级字段折叠区）、`导入用例`（粘贴 JSONL，覆盖/追加，
+  自动校准 `cases_count`）、`删除`（**要求输入 id 二次确认**）。
+- **详情抽屉**：catalog 记录 vs 磁盘实际（条数一致性、文件字节、sha256、修改时间）、
+  **版本钉核对**、阻断项清单、用例速览（前 3/5/10 条，可展开看 input/gold/meta 字段）、
+  元数据全表、可复制的复现命令。
+- 「体检目录」按钮：逐行体检全部数据集（JSONL 可解析 / 必填字段 / 条数一致 /
+  评分器已注册 / 许可风险 / 版本钉一致性），结果按 错误 / 警告 / 提示 分组。
+- 「用此数据集发起评测」一键把 id、版本钉、推荐评分器带进「新建评测」表单；
+  可运行集可直接导出 JSONL。
+- **用例在线预览**（行内 `预览` 按钮，或详情抽屉里的「⧉ 在线预览全部 N 条」）：
+  就地浏览用例内容，不必先导出 JSONL 再拿编辑器看 —— 左列条目 + 右列详情
+  （题目 / 标准答案 / **meta 结构化渲染**（数组→标签、嵌套→逐行）/ 本条原始 JSON），
+  支持关键词搜索（id/题目/答案/meta 全文）、按难度·评分器·分类筛选（下拉项带分布计数）、
+  分页（10/20/50/单页 200）、`↑↓` 切换条目与 `←→` 翻页、`Esc` 关闭、复制本条 JSON。
+  数据质量也如实摆出来：坏行单独标出并保留原文，超长字段截断后标注被截断的字段路径；
+  空结果、文件未就位、需执行环境各有明确文案，不会静默显示空白。
+
+**新建评测 = 多选数据集 → 拆成 N 个独立 run（不做「合并成一个 run」）**。
+这么做是为了保住可追责性：`run.dataset_version` 是单值（合并会写坏版本钉）、
+聚合通过率会被 3 题集稀释、9 种评分器组合无法并存、不可运行集会触发整批熔断。
+所以多选后每个数据集仍是独立 run（各自的版本钉 / 推荐评分器 / 报告都保留），
+并发闸默认 3（避免同时打模型 API 限流）。表单顶部实时显示
+**「已选 N 集 · M 题 · 约 X min · Y tok（trials 再乘）」**，提交后跳到
+「批量方案」视图看覆盖矩阵（按域加权通过率 + 每数据集明细 + 进度条，每 2.5s 刷新），
+任一数据集可「看运行」跳到其独立报告。全局 `grader` / `dataset_version` 留空时
+自动沿用各数据集自己的推荐值，填写才统一覆盖。
+
+**改 catalog 的安全底线**（`eval_harness/core/datasets_admin.py`）：
+原子写（temp + `os.replace`）+ 写前备份 `catalog.json.bak.<ts>`（保留最近 20 份）
++ 删除时样本文件**移入 `datasets/.trash/<ts>/` 而非 unlink** + 受控字段白名单
+（`id` 建后不可改；`file_sha256` / `fetched_at` 归 `--pin` 管，不接受手改）
++ 受控枚举校验（`tier` / `domain` / `capabilities`）+ 写后失效进程内缓存。
+
+用 CLI 做同一件事：
+
+```bash
+python -m eval_harness --list-datasets                     # 四档 + 状态 + 决策字段
+python tools/fetch_datasets.py --check                     # ready 集文件是否就位、条数是否一致
+python tools/fetch_datasets.py --only gsm8k-basic --force --pin v1.0-official   # 版本钉
+```
+
+**控制台体验增强（R1–R8 · 运行生命周期）与新手引导**
+
+界面按「一次评测的全生命周期」成体系打磨，让新手能跑通、让交付方看得清、让记录可回收：
+
+- **R1 状态标识 + 起止时间**：运行列表每行显示状态徽章（进行中 / 已完成 / 失败 / 已中止 / 待运行）、
+  通过率进度条，以及开始 / 结束时间两列——一眼看清哪些跑完、哪些在跑、各跑了多久。
+- **R2 多数据集统一汇总报告**：在运行列表勾选多个运行（或整批）→「生成汇总报告」，
+  得到跨运行 / 跨提供方的统一成绩单：**综合通过率** + 按提供方聚合矩阵 + 逐运行明细。
+- **R3 运行中实时查看进度**：不必等全部结束——进行中的任务实时显示进度条（如 `390/1321`），
+  点开详情另有 1.5s 轮询的实时进度区；后端 `GET /api/jobs/{job_id}` 提供点查。
+- **R4 启动不卡顿**：点「启动」立即返回 `job_id` / `run_id`，界面不锁死，可继续导航或并发发起。
+- **R5 执行提供方 CRUD**：新增「提供方」管理页，可视化增删改查被测对象（替代纯下拉框）；
+  运行时按「自定义配置优先 → 回退内置注册表」解析。
+- **R6 Judge 通道 CRUD**：新增「Judge 通道」管理页，可自定义评测用 LLM，不再只能选内置模型。
+- **R7 在途状态修复**：修掉「任务已结束却永远显示运行中」——引擎开跑前预写
+  `running + start_time`，结束 upsert `completed + end_time`，异常标 `failed`；
+  进程重启时 `recover_stale_runs` 把悬挂的 `running/pending` 兜底标记为 `aborted`。
+- **R8 缺陷清单**：运行详情新增「缺陷清单」，跳过通过题、按失败类型 / 学科分类聚合，
+  未过题目逐条列出，直接当「错题本」用来定位问题。
+- **运行删除**：运行列表每行可删除（`DELETE /api/runs/{id}`），级联清理
+  `cases / graders / trials / traces`；**运行中的任务禁止删除**（避免与引擎落库竞态），
+  写操作需具备 `delete` 能力。
+- **🧭 新手引导页**：侧边栏「新手引导」为小白提供完整评测流程说明——顶部流水线流程图
+  （数据集 → 执行提供方 → Judge 通道 → 新建评测 → 运行中 → 报告/缺陷）+ 6 步时间轴卡片，
+  每步通俗讲解，关键节点「去操作 ›」一键跳转到对应功能页；概览页顶部亦有醒目入口。
 
 ---
 
@@ -258,9 +345,26 @@ Run `python -m eval_harness --help` for the full list.
 
 | endpoint | purpose |
 |---|---|
-| `GET /api/datasets` | list case sets |
-| `POST /api/runs` | create + run an evaluation |
-| `GET /api/runs/{id}` | per-case `response` + `graders` |
+| `GET /api/datasets` | 数据集目录：四档分组 + **受控分类（`domains` / `capabilities` / `taxonomy_version`）** + 决策字段 + 已注册评分器候选（`tier_order` / `tier_labels` / `summary` / `fixtures` / `editable_fields`） |
+| `GET /api/datasets/{id}` | 单条详情：catalog 条目 + 文件事实（字节/sha256/条数一致性）+ 版本钉核对 + 用例预览 + 阻断项（`?preview=N`） |
+| `GET /api/datasets/{id}/cases` | **用例在线预览**（只读）：`?page=&page_size=&q=&difficulty=&grader=&suite=&category=` → 分页用例 + 字段分布 `facets` + 文件事实 `file`（行数/有效/坏行）。服务端维护行级索引缓存（带 mtime/size 失效），翻页只 seek 读目标行；路径限制在 `datasets/`·`examples/` 下 |
+| `POST /api/datasets` | **新建数据集**：`{"id","name","tier","domain","capabilities":[…],"cases":["{…}"]}`，给了 `cases` 会同时落 JSONL 并同步 `cases_count` |
+| `PATCH /api/datasets/{id}` | **编辑元数据**：白名单字段（`id` 不可改；`file_sha256`/`fetched_at` 不接受手改），返回 `changed` 只为有变化的字段 |
+| `DELETE /api/datasets/{id}?purge_file=true` | **删除数据集**：样本文件移入 `datasets/.trash/<ts>/`；catalog 改动前自动备份 |
+| `POST /api/datasets/{id}/cases` | **导入用例**：`{"text":"<JSONL>","mode":"replace\|append"}`，逐行校验 id/input/index 唯一性，导入后校准 `cases_count`；`append` 时若**现有文件已有坏行**会 400 并点名是哪一行（而不是含糊报「id 冲突」），修好或改「覆盖导入」再追加 |
+| `POST /api/datasets/validate` | 目录体检：`{"ids":[],"deep":true,"include_pin_status":false}`，返回按 error/warn/info 分组的 issue 列表 |
+| `GET /api/datasets/{id}/download` | 导出可运行集的 JSONL（不可运行集返回 400） |
+| `GET /api/case_sets` | DB 里记录的用例集版本钉（仅 `--generate` 动态产题路径写入；控制台已不再暴露该视图，端点保留供 CLI/API 调用） |
+| `POST /api/runs` | create + run an evaluation（单数据集） |
+| `POST /api/runs/batch` | **批量评测**：`{"datasets":[id…],"provider","grader"（留空=各集推荐）,"trials","dataset_version"（留空=各集自身钉）,"max_concurrency":3…}` → 拆成 N 个独立 run（各自保留版本钉/评分器/报告），并发闸默认 3；不可运行/未收录的集自动跳过并返回 `skipped` 清单 |
+| `GET /api/runs/batch/{batch_id}` | 批量覆盖矩阵：每数据集状态/通过率/pass@k + 按域加权聚合 `matrix` + `summary`（已选/完成/运行/失败/综合通过率）。子 run 通过 `config_json.params.dataset_id/batch_id` 回查 |
+| `GET /api/runs/{id}` | per-case `response` + `graders`（含 `status` / `start_time` / `end_time`） |
+| `DELETE /api/runs/{id}` | **删除运行**（级联 `cases` / `graders` / `trials` / `traces`）；需 `delete` 能力 |
+| `GET /api/runs/{id}/defects` | **缺陷清单**（R8）：跳过通过题，按 `failure_class` / `category` 聚合 + 逐条明细 |
+| `POST /api/runs/summary` | **多运行汇总**（R2）：`{"run_ids":[…]}` 或 `{"batch_id":…}` → 综合通过率 + 按提供方矩阵 + 逐运行明细 |
+| `GET /api/jobs/{job_id}` | **在途任务实时进度**（R3）：`done` / `total` / `last_case` / `status`，供前端轮询 |
+| `GET/POST /api/providers`，`DELETE /api/providers/{name}` | **执行提供方自定义配置 CRUD**（R5）：写需 `manage` / `delete` 能力；`api_key` 读取脱敏 |
+| `GET/POST /api/judges`，`DELETE /api/judges/{name}` | **Judge 通道自定义配置 CRUD**（R6）：写需 `manage` / `delete` 能力 |
 | `GET /api/dashboard` | KPI + three-way split |
 | `GET /api/traces` | OTel trace store |
 | `/api/sso/login` `/api/sso/callback` `/api/audit` | OIDC SSO + 等保 audit |

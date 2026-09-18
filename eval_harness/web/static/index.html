@@ -20,11 +20,16 @@
       </div>
       <nav class="nav">
         <button class="nav-item active" data-view="dashboard"><span class="ico">◧</span>概览</button>
+        <button class="nav-item guide-nav" data-view="guide"><span class="ico">🧭</span>新手引导</button>
         <button class="nav-item" data-view="runs"><span class="ico">▤</span>评测运行</button>
         <button class="nav-item" data-view="traces"><span class="ico">⤳</span>生产轨迹</button>
-        <button class="nav-item" data-view="casesets"><span class="ico">❏</span>用例集</button>
+        <button class="nav-item" data-view="datasets"><span class="ico">▩</span>数据集</button>
         <button class="nav-item" data-view="dashboards"><span class="ico">▦</span>看板</button>
         <button class="nav-item" data-view="new"><span class="ico">＋</span>新建评测</button>
+        <button class="nav-item" data-view="batch"><span class="ico">⊞</span>批量方案</button>
+        <button class="nav-item" data-view="providers"><span class="ico">⚙</span>提供方</button>
+        <button class="nav-item" data-view="judges"><span class="ico">⚖</span>Judge通道</button>
+        <button class="nav-item" data-view="report"><span class="ico">▣</span>汇总报告</button>
       </nav>
       <div class="sidebar-foot">
         <div class="pill" id="backend-badge">—</div>
@@ -46,6 +51,14 @@
 
       <!-- 概览 -->
       <section id="view-dashboard" class="view">
+        <div class="guide-callout" id="guide-callout">
+          <div class="gc-emoji">🧭</div>
+          <div class="gc-text">
+            <div class="gc-title">第一次用？3 分钟看懂评测流程</div>
+            <div class="gc-sub">从「准备考题」到「出成绩单」，一步一步带你跑通一次完整评测。</div>
+          </div>
+          <button class="btn primary" id="guide-callout-btn">查看评测流程指引 ›</button>
+        </div>
         <div class="kpi-grid" id="kpi-grid"></div>
         <div class="card-grid">
           <div class="card chart-card">
@@ -68,18 +81,73 @@
       </section>
 
       <!-- 运行列表 -->
+      <!-- 新手评测流程引导（可视化 + 跳转链接） -->
+      <section id="view-guide" class="view hidden">
+        <div class="guide-wrap">
+          <div class="guide-hero">
+            <h2>🧭 评测流程指引（新手必看）</h2>
+            <p>把一次评测想象成「出一张考卷 → 找个考生 → 请位阅卷老师 → 开考 → 看进度 → 拿成绩单」。
+              下面 6 步覆盖完整流程，每个关键节点都能点「去操作 ›」直接跳到对应页面。</p>
+          </div>
+
+          <!-- 流程图（顶部总览） -->
+          <div class="card">
+            <div class="card-head"><h3>一图看懂：评测流水线</h3></div>
+            <div class="flow-svg" id="guide-flow"></div>
+          </div>
+
+          <!-- 时间轴步骤卡片 -->
+          <div class="card">
+            <div class="card-head"><h3>分步操作（通俗易懂版）</h3></div>
+            <div class="timeline" id="guide-timeline"></div>
+          </div>
+
+          <div class="guide-tip">
+            💡 提示：本控制台默认「宽松模式」即可使用全部功能；若接了企业 SSO 权限，删除运行需具备 delete 能力。
+          </div>
+        </div>
+      </section>
+
       <section id="view-runs" class="view hidden">
         <div class="card">
           <div class="card-head">
             <h3>评测运行</h3>
+            <button class="btn primary xs" id="run-report-btn">▣ 生成汇总报告</button>
+            <span class="pv-spacer"></span>
             <input id="run-search" class="search" placeholder="搜索名称 / 模型 / 提供方…" />
           </div>
           <div class="table-wrap">
             <table class="tbl" id="runs-table">
               <thead>
-                <tr><th>名称</th><th>提供方</th><th>模型版本</th><th>通过率</th><th>题数</th><th>inconclusive</th><th>三通道</th><th>时间</th></tr>
+                <tr><th><input type="checkbox" id="runs-selall" title="全选" /></th><th>状态</th><th>名称</th><th>提供方</th><th>通过率</th><th>题数</th><th>开始时间</th><th>结束时间</th><th>操作</th></tr>
               </thead>
               <tbody id="runs-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 批量评测覆盖矩阵 -->
+      <section id="view-batch" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h3>批量评测方案 · 覆盖矩阵</h3><span class="hint">多选数据集拆成 N 个独立 run，按域聚合通过率（每 2.5s 自动刷新）</span></div>
+          <div id="batch-summary"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>按域聚合</h3><span class="hint">各能力域的加权通过率</span></div>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>域</th><th>数据集数</th><th>题数</th><th>通过</th><th>通过率</th></tr></thead>
+              <tbody id="batch-matrix"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>数据集明细</h3><span class="hint">每个数据集 = 一个独立 run（各自版本钉 / 评分器）</span></div>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>名称</th><th>id</th><th>评分器</th><th>版本钉</th><th>状态</th><th>题数</th><th>通过率</th><th>pass@k</th><th>运行</th></tr></thead>
+              <tbody id="batch-items"></tbody>
             </table>
           </div>
         </div>
@@ -98,14 +166,80 @@
         </div>
       </section>
 
-      <!-- 用例集 -->
-      <section id="view-casesets" class="view hidden">
+      <!-- 数据集（预置目录：管理 / 体检 / 选用） -->
+      <section id="view-datasets" class="view hidden">
+        <div class="kpi-grid" id="ds-kpi"></div>
+
         <div class="card">
-          <div class="card-head"><h3>用例集版本钉</h3><span class="hint">创新④ · 数据集版本哈希</span></div>
+          <div class="card-head">
+            <h3>数据集目录</h3>
+            <span class="hint" id="ds-hint">—</span>
+            <div class="ds-head-actions">
+              <input id="ds-search" class="search" placeholder="搜索名称 / 分类 / 场景 / 来源…" />
+              <button class="btn ghost" id="ds-validate-btn">◈ 体检目录</button>
+              <button class="btn primary" id="ds-new-btn">＋ 新增数据集</button>
+            </div>
+          </div>
+
+          <div class="ds-tabs" id="ds-tabs"></div>
+
+          <div class="ds-filters">
+            <span class="ds-groupby">
+              <label for="ds-groupby">分组</label>
+              <select id="ds-groupby" class="control control-sm">
+                <option value="domain">按域（一级分类）</option>
+                <option value="tier">按档位</option>
+                <option value="none">不分组</option>
+              </select>
+            </span>
+            <label class="check"><input type="checkbox" id="ds-f-runnable" checked /> 只看可运行</label>
+            <label class="check"><input type="checkbox" id="ds-f-commercial" /> 只看可商用</label>
+            <label class="check"><input type="checkbox" id="ds-f-nojudge" /> 排除需 judge</label>
+            <label class="check"><input type="checkbox" id="ds-f-env" /> 只看需环境(占位)</label>
+            <span class="muted" id="ds-count"></span>
+          </div>
+
           <div class="table-wrap">
-            <table class="tbl" id="cs-table">
-              <thead><tr><th>名称</th><th>版本</th><th>哈希</th><th>来源</th></tr></thead>
-              <tbody id="cs-body"></tbody>
+            <table class="tbl ds-tbl">
+              <thead>
+                <tr>
+                  <th>数据集</th>
+                  <th>分类（域 · 能力）</th>
+                  <th>档位</th>
+                  <th>状态</th>
+                  <th class="num">题数</th>
+                  <th class="wide">适用场景</th>
+                  <th class="num">耗时</th>
+                  <th class="num">token</th>
+                  <th>评分器</th>
+                  <th>许可</th>
+                  <th class="ops">操作</th>
+                </tr>
+              </thead>
+              <tbody id="ds-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card hidden" id="ds-validate-card">
+          <div class="card-head">
+            <h3>目录体检结果</h3>
+            <span class="hint" id="ds-validate-hint"></span>
+            <button class="btn ghost" id="ds-validate-close" style="margin-left:auto">收起</button>
+          </div>
+          <div class="readout" id="ds-validate-summary"></div>
+          <div id="ds-validate-body" style="margin-top:14px"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>开发 / 演示 fixtures</h3>
+            <span class="hint">examples/ 下未被 catalog 收录，仅用于链路自检</span>
+          </div>
+          <div class="table-wrap">
+            <table class="tbl">
+              <thead><tr><th>名称</th><th>题数</th><th>路径</th><th></th></tr></thead>
+              <tbody id="ds-fixtures-body"></tbody>
             </table>
           </div>
         </div>
@@ -150,21 +284,21 @@
           <div class="card-head"><h3>发起一次评测</h3><span class="hint">复用 engine.run_suite_async，结果自动落库</span></div>
           <form id="new-eval-form" class="form">
             <div class="field">
-              <label>用例集</label>
-              <select id="f-suite" class="control"></select>
+              <label>数据集（可多选 → 拆成多个独立 run）</label>
+              <div class="ds-picker" id="ds-picker"></div>
+              <div class="ds-pick-bar">
+                <span id="ds-pick-summary" class="muted">未选择</span>
+                <span class="pv-spacer"></span>
+                <button class="btn ghost xs" id="ds-pick-all" type="button">全选可运行</button>
+                <button class="btn ghost xs" id="ds-pick-clear" type="button">清空</button>
+              </div>
+              <span class="hint">多选会拆成 N 个独立 run（各自保留版本钉 / 评分器 / 报告），保证验收可追责；不可运行集自动跳过。其余选项为「批量级默认值」，不覆盖各数据集自己的版本钉与推荐评分器。</span>
             </div>
             <div class="row">
               <div class="field">
-                <label>执行提供方</label>
-                <select id="f-provider" class="control">
-                  <option value="mock">mock（零成本）</option>
-                  <option value="deepseek">deepseek</option>
-                  <option value="local_agent">local_agent（本地/自建 HTTP 靶机，默认 :9000/chat）</option>
-                  <option value="openai">openai（OpenAI 兼容，key 读 OPENAI_API_KEY）</option>
-                  <option value="qwen">qwen（通义，key 读 DASHSCOPE_API_KEY）</option>
-                  <option value="zhipu">zhipu（智谱，key 读 ZHIPU_API_KEY）</option>
-                  <option value="domestic_gateway">domestic_gateway（国内网关·加权轮询+故障转移）</option>
-                </select>
+                <label>执行提供方 <a class="lnk" id="f-provider-manage" style="font-weight:400">管理 ›</a></label>
+                <select id="f-provider" class="control"></select>
+                <span class="hint">下拉项为内置提供方 + 自定义配置；点「管理」可增删改查（R5）。</span>
               </div>
               <div class="field">
                 <label>mock 模式</label>
@@ -177,20 +311,16 @@
             </div>
             <div class="row">
               <div class="field">
-                <label>Judge 通道</label>
-                <select id="f-judge" class="control">
-                  <option value="">不启用</option>
-                  <option value="deepseek">deepseek（需 DEEPSEEK_API_KEY）</option>
-                </select>
+                <label>Judge 通道 <a class="lnk" id="f-judge-manage" style="font-weight:400">管理 ›</a></label>
+                <select id="f-judge" class="control"><option value="">不启用</option></select>
+                <span class="hint">下拉项为内置 LLM + 自定义 Judge 配置；点「管理」可增删改查（R6）。</span>
               </div>
               <div class="field">
                 <label>评分器组合</label>
-                <select id="f-grader" class="control">
-                  <option value="code,judge">code,judge</option>
-                  <option value="judge">judge</option>
-                  <option value="code">code</option>
-                  <option value="trajectory">trajectory</option>
-                </select>
+                <input id="f-grader" class="control" list="f-grader-list" value=""
+                       placeholder="留空=各数据集用推荐评分器；填写则统一覆盖" />
+                <datalist id="f-grader-list"></datalist>
+                <span class="hint">逗号分隔可组合；候选来自引擎注册表。留空时每个数据集使用 catalog 里的推荐评分器。</span>
               </div>
             </div>
             <div class="row">
@@ -242,6 +372,89 @@
           <div id="jobs-body" class="readout"><span class="muted">暂无在途任务。</span></div>
         </div>
       </section>
+
+      <!-- 提供方管理（R5） -->
+      <section id="view-providers" class="view hidden">
+        <div class="card form-card">
+          <div class="card-head"><h3>执行提供方（被测对象）管理</h3><span class="hint">R5 · 增删改查，替代仅下拉框选择</span>
+            <button class="btn primary" id="pv-new-btn" style="margin-left:auto">＋ 新增提供方</button></div>
+          <div id="pv-form-wrap" class="hidden">
+            <form id="pv-form" class="form">
+              <div class="row">
+                <div class="field"><label>标识 key（唯一）</label><input id="pv-name" class="control" placeholder="如 my_agent" /></div>
+                <div class="field"><label>展示名</label><input id="pv-display" class="control" placeholder="如 我的作文陪练智能体" /></div>
+              </div>
+              <div class="row">
+                <div class="field"><label>类型 kind（注册表 key）</label><select id="pv-kind" class="control"></select></div>
+                <div class="field"><label>模型</label><input id="pv-model" class="control" placeholder="如 deepseek-chat" /></div>
+              </div>
+              <div class="row">
+                <div class="field"><label>base_url</label><input id="pv-base" class="control" placeholder="被测对象 API 地址" /></div>
+                <div class="field"><label>api_key</label><input id="pv-key" class="control" type="password" placeholder="留空=不修改（更新时）" /></div>
+              </div>
+              <div class="field"><label>extra（JSON，可选）</label><input id="pv-extra" class="control" placeholder='{"field":"value"}' /></div>
+              <div class="form-actions">
+                <button type="submit" class="btn primary" id="pv-save-btn">保存</button>
+                <button type="button" class="btn ghost" id="pv-cancel-btn">取消</button>
+                <span id="pv-status" class="muted"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>已配置提供方</h3><span class="hint">内置 + 自定义</span></div>
+          <div class="table-wrap">
+            <table class="tbl"><thead><tr><th>标识</th><th>展示名</th><th>类型</th><th>模型</th><th>API Key</th><th>操作</th></tr></thead>
+              <tbody id="pv-body"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Judge 通道管理（R6） -->
+      <section id="view-judges" class="view hidden">
+        <div class="card form-card">
+          <div class="card-head"><h3>Judge 通道（评测用 LLM）管理</h3><span class="hint">R6 · 自定义，替代仅内置模型</span>
+            <button class="btn primary" id="jg-new-btn" style="margin-left:auto">＋ 新增 Judge</button></div>
+          <div id="jg-form-wrap" class="hidden">
+            <form id="jg-form" class="form">
+              <div class="row">
+                <div class="field"><label>标识 key（唯一）</label><input id="jg-name" class="control" placeholder="如 my_judge" /></div>
+                <div class="field"><label>展示名</label><input id="jg-display" class="control" placeholder="如 自建 judge" /></div>
+              </div>
+              <div class="row">
+                <div class="field"><label>类型 kind（注册表 key）</label><select id="jg-kind" class="control"></select></div>
+                <div class="field"><label>模型</label><input id="jg-model" class="control" placeholder="如 deepseek-chat" /></div>
+              </div>
+              <div class="row">
+                <div class="field"><label>base_url</label><input id="jg-base" class="control" placeholder="Judge API 地址" /></div>
+                <div class="field"><label>api_key</label><input id="jg-key" class="control" type="password" placeholder="留空=不修改（更新时）" /></div>
+              </div>
+              <div class="field"><label>extra（JSON，可选）</label><input id="jg-extra" class="control" placeholder='{"field":"value"}' /></div>
+              <div class="form-actions">
+                <button type="submit" class="btn primary" id="jg-save-btn">保存</button>
+                <button type="button" class="btn ghost" id="jg-cancel-btn">取消</button>
+                <span id="jg-status" class="muted"></span>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>已配置 Judge 通道</h3><span class="hint">内置 + 自定义</span></div>
+          <div class="table-wrap">
+            <table class="tbl"><thead><tr><th>标识</th><th>展示名</th><th>类型</th><th>模型</th><th>API Key</th><th>操作</th></tr></thead>
+              <tbody id="jg-body"></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <!-- 汇总报告（R2） -->
+      <section id="view-report" class="view hidden">
+        <div class="card">
+          <div class="card-head"><h3>统一汇总报告</h3><span class="hint">R2 · 多数据集 / 多运行聚合</span>
+            <button class="btn primary" id="report-gen-btn" style="margin-left:auto">▣ 生成报告</button></div>
+          <div id="report-body"><span class="muted">在「评测运行」勾选若干运行，点「生成汇总报告」；或进入某批次后由批量方案自动聚合。</span></div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -254,6 +467,52 @@
         <button class="btn ghost" id="drawer-close">✕</button>
       </div>
       <div id="drawer-body" class="drawer-body"></div>
+    </div>
+  </div>
+
+  <!-- 数据集用例在线预览器（只读浏览，不下载） -->
+  <div id="pv" class="pv hidden">
+    <div class="pv-mask" id="pv-mask"></div>
+    <div class="pv-panel">
+      <div class="pv-head">
+        <div class="pv-title">
+          <h2 id="pv-name">用例在线预览</h2>
+          <div class="pv-sub" id="pv-sub">—</div>
+        </div>
+        <div class="pv-head-actions">
+          <button class="btn ghost" id="pv-use">▶ 用此集发起评测</button>
+          <button class="btn ghost" id="pv-close">✕ 关闭</button>
+        </div>
+      </div>
+
+      <div class="pv-bar">
+        <input id="pv-q" class="search" placeholder="搜索 id / 题目 / 标准答案 / meta…" />
+        <select id="pv-f-difficulty" class="control control-sm"><option value="">全部难度</option></select>
+        <select id="pv-f-grader" class="control control-sm"><option value="">全部评分器</option></select>
+        <select id="pv-f-category" class="control control-sm"><option value="">全部分类</option></select>
+        <button class="btn ghost xs" id="pv-reset">重置</button>
+        <span class="pv-spacer"></span>
+        <span class="muted" id="pv-count">—</span>
+        <select id="pv-size" class="control control-sm">
+          <option value="10">10 条/页</option>
+          <option value="20" selected>20 条/页</option>
+          <option value="50">50 条/页</option>
+          <option value="200">单页 200</option>
+        </select>
+        <button class="btn ghost xs" id="pv-prev" title="上一页（←）">‹</button>
+        <span class="pv-page" id="pv-page">-/-</span>
+        <button class="btn ghost xs" id="pv-next" title="下一页（→）">›</button>
+      </div>
+
+      <div class="pv-body">
+        <div class="pv-list" id="pv-list"></div>
+        <div class="pv-detail" id="pv-detail"></div>
+      </div>
+
+      <div class="pv-foot">
+        <span class="muted">键盘：↑ / ↓ 切换条目 · ← / → 翻页 · Esc 关闭</span>
+        <span class="mono muted" id="pv-path"></span>
+      </div>
     </div>
   </div>
 

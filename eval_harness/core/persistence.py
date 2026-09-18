@@ -23,7 +23,7 @@ from typing import Optional
 
 from sqlalchemy import (
     Column, String, Integer, Float, Boolean, Text, JSON, ForeignKey,
-    select, func, text,
+    select, func, text, delete,
 )
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
@@ -58,6 +58,12 @@ class Run(Base):
     concurrency = Column(Integer)
     rate = Column(Float)
     created_at = Column(Float, default=time.time)
+    # —— 运行态（R7 在途状态修复 / R1 状态标识）：在途状态与起止时间 —— #
+    # status ∈ pending / running / completed / failed / aborted
+    # （旧库无此列时默认 completed；NULL 且未结束→recover_stale_runs 标 aborted）
+    status = Column(String(16), default="completed")
+    start_time = Column(Float)
+    end_time = Column(Float)
     total = Column(Integer, default=0)
     passed = Column(Integer, default=0)
     inconclusive = Column(Integer, default=0)
@@ -191,7 +197,39 @@ class Database:
         await self._migrate_run_extra_columns()
         await self._migrate_external_id_column()
         await self._migrate_failure_class_columns()
+        await self._migrate_run_status_columns()
+        # 进程重启后，内存态在途任务丢失：把「仍标记运行中且无结束时间」的运行
+        # 标为 aborted，避免 R7「在途任务永远显示运行中」的缺陷（R7 修复）。
+        await self.recover_stale_runs()
         return self
+
+    async def _migrate_run_status_columns(self):
+        """为已有 runs 表补充 status / start_time / end_time 列（R7 之后新增）。"""
+        existing = await self._runs_columns()
+        async with self.engine.begin() as conn:
+            if "status" not in existing:
+                await conn.execute(text("ALTER TABLE runs ADD COLUMN status VARCHAR(16)"))
+            if "start_time" not in existing:
+                await conn.execute(text("ALTER TABLE runs ADD COLUMN start_time FLOAT"))
+            if "end_time" not in existing:
+                await conn.execute(text("ALTER TABLE runs ADD COLUMN end_time FLOAT"))
+
+    async def recover_stale_runs(self):
+        """把进程重启后遗留的「running/pending 且无 end_time」运行标为 aborted。
+
+        Python asyncio 任务不跨进程保留；服务重启后这些运行实际已终止，
+        若仍显示 running 会误导用户（R7 根因之一）。
+        """
+        async with self.Session() as s:
+            rows = (await s.execute(
+                select(Run).where(
+                    (Run.status.in_(["running", "pending"])) | (Run.status.is_(None)),
+                ).where(Run.end_time.is_(None))
+            )).scalars().all()
+            for r in rows:
+                r.status = "aborted"
+            if rows:
+                await s.commit()
 
     async def _migrate_failure_class_columns(self):
         """为已有 cases / trials 表补充 failure_class + status_code 列（O17 之后新增）。"""
@@ -285,32 +323,50 @@ class Database:
         inc = sum(1 for r in results if r.inconclusive)
         avg_pk = (sum(r.pass_at_k for r in results) / total) if total else 0.0
         async with self.Session() as s:
-            run = Run(
-                id=run_id, name=name, provider=meta.get("provider"),
-                judge_provider=meta.get("judge_provider"), grader=meta.get("grader"),
-                trials=meta.get("trials", 1), trial_policy=meta.get("trial_policy"),
-                combine=meta.get("combine"), concurrency=meta.get("concurrency"),
-                rate=meta.get("rate"), total=total, passed=passed, inconclusive=inc,
-                pass_rate=(passed / total if total else 0.0), avg_pass_at_k=avg_pk,
-                config_json=meta, harness_version=meta.get("harness_version"),
-                model_version=meta.get("model_version"), dataset_version=meta.get("dataset_version"),
-                three_way_json=three_way,
-                owner=owner, visibility=visibility,
-                external_id=external_id,
-                token_budget_usd=token_budget_usd, cost_used_usd=cost_used_usd,
-                budget_aborted=budget_aborted, attachments_json=attachments,
-                # 代码版本钉（N3 并入增强）
-                git_available=bool(meta.get("git_available", False)),
-                git_commit=meta.get("git_commit"),
-                git_branch=meta.get("git_branch"),
-                git_tag=meta.get("git_tag"),
-                git_dirty=bool(meta.get("git_dirty", False)),
-                git_author_name=meta.get("git_author_name"),
-                git_author_email=meta.get("git_author_email"),
-                git_commit_message=meta.get("git_commit_message"),
-                git_commit_time=meta.get("git_commit_time"),
-            )
-            s.add(run)
+            # 幂等 upsert：若已存在 pending 行（引擎预写），则更新之；否则新建。
+            run = (await s.execute(select(Run).where(Run.id == run_id))).scalar_one_or_none()
+            if run is None:
+                run = Run(id=run_id, created_at=time.time())
+                s.add(run)
+            run.name = name
+            run.provider = meta.get("provider")
+            run.judge_provider = meta.get("judge_provider")
+            run.grader = meta.get("grader")
+            run.trials = meta.get("trials", 1)
+            run.trial_policy = meta.get("trial_policy")
+            run.combine = meta.get("combine")
+            run.concurrency = meta.get("concurrency")
+            run.rate = meta.get("rate")
+            run.total = total
+            run.passed = passed
+            run.inconclusive = inc
+            run.pass_rate = (passed / total if total else 0.0)
+            run.avg_pass_at_k = avg_pk
+            run.config_json = meta
+            run.harness_version = meta.get("harness_version")
+            run.model_version = meta.get("model_version")
+            run.dataset_version = meta.get("dataset_version")
+            run.three_way_json = three_way
+            run.owner = owner
+            run.visibility = visibility
+            run.external_id = external_id
+            run.token_budget_usd = token_budget_usd
+            run.cost_used_usd = cost_used_usd
+            run.budget_aborted = budget_aborted
+            run.attachments_json = attachments
+            # 代码版本钉（N3 并入增强）
+            run.git_available = bool(meta.get("git_available", False))
+            run.git_commit = meta.get("git_commit")
+            run.git_branch = meta.get("git_branch")
+            run.git_tag = meta.get("git_tag")
+            run.git_dirty = bool(meta.get("git_dirty", False))
+            run.git_author_name = meta.get("git_author_name")
+            run.git_author_email = meta.get("git_author_email")
+            run.git_commit_message = meta.get("git_commit_message")
+            run.git_commit_time = meta.get("git_commit_time")
+            # 运行态终写（R7）：标记完成 + 记录结束时间
+            run.status = "completed"
+            run.end_time = time.time()
             await s.flush()
             for r in results:
                 c = CaseRow(
@@ -341,6 +397,89 @@ class Database:
                     ))
             await s.commit()
         return run_id
+
+    # ---- R7：运行态预写 / 终写（在途状态修复的基础） ----
+    async def create_run_pending(self, run_id: str, name: str, meta: dict,
+                                 owner: Optional[str] = None, visibility: str = "all",
+                                 external_id: Optional[str] = None,
+                                 model_version: Optional[str] = None,
+                                 provider: Optional[str] = None,
+                                 judge_provider: Optional[str] = None,
+                                 grader: Optional[str] = None) -> None:
+        """运行开始前预写一行 Run（status=running + start_time）。
+
+        这样即使在途运行尚未结束，运行列表（/api/runs）也能立即看到「运行中」，
+        且进程重启后由 recover_stale_runs 标 aborted，杜绝「永远运行中」（R7）。
+        """
+        async with self.Session() as s:
+            existing = (await s.execute(select(Run).where(Run.id == run_id))).scalar_one_or_none()
+            if existing is not None:
+                return  # 已预写，避免重复插入
+            run = Run(
+                id=run_id, name=name, provider=provider or meta.get("provider"),
+                judge_provider=judge_provider or meta.get("judge_provider"),
+                grader=grader or meta.get("grader"),
+                trials=meta.get("trials", 1), trial_policy=meta.get("trial_policy"),
+                combine=meta.get("combine"), concurrency=meta.get("concurrency"),
+                rate=meta.get("rate"), status="running", start_time=time.time(),
+                created_at=time.time(), config_json=meta,
+                harness_version=meta.get("harness_version"),
+                model_version=model_version or meta.get("model_version"),
+                dataset_version=meta.get("dataset_version"),
+                owner=owner, visibility=visibility, external_id=external_id,
+                git_available=bool(meta.get("git_available", False)),
+                git_commit=meta.get("git_commit"), git_branch=meta.get("git_branch"),
+                git_tag=meta.get("git_tag"), git_dirty=bool(meta.get("git_dirty", False)),
+                git_author_name=meta.get("git_author_name"),
+                git_author_email=meta.get("git_author_email"),
+                git_commit_message=meta.get("git_commit_message"),
+                git_commit_time=meta.get("git_commit_time"),
+            )
+            s.add(run)
+            await s.commit()
+
+    async def mark_run_done(self, run_id: str, status: str = "completed") -> None:
+        """终写运行态（completed / failed / aborted），补 end_time。"""
+        async with self.Session() as s:
+            run = (await s.execute(select(Run).where(Run.id == run_id))).scalar_one_or_none()
+            if run is None:
+                return
+            run.status = status
+            run.end_time = time.time()
+            await s.commit()
+
+    # ---- R8：缺陷清单（运行完成后聚合失败/不可判用例） ----
+    async def list_run_defects(self, run_id: str) -> dict:
+        """聚合某运行的缺陷（未通过 / 不可判用例），按 failure_class 与 category 归类。"""
+        async with self.Session() as s:
+            rows = (await s.execute(
+                select(CaseRow).where(CaseRow.run_id == run_id)
+            )).scalars().all()
+        defects = []
+        by_class: dict[str, int] = {}
+        by_category: dict[str, int] = {}
+        for c in rows:
+            passed = bool(c.passed)
+            inconclusive = bool(c.inconclusive)
+            if passed and not inconclusive:
+                continue  # 通过且无歧义 → 非缺陷
+            fc = c.failure_class or ("inconclusive" if inconclusive else "failed")
+            by_class[fc] = by_class.get(fc, 0) + 1
+            cat = c.category or "未分类"
+            by_category[cat] = by_category.get(cat, 0) + 1
+            defects.append({
+                "case_id": c.case_id, "category": cat, "difficulty": c.difficulty,
+                "passed": passed, "inconclusive": inconclusive,
+                "failure_class": c.failure_class, "status_code": c.status_code,
+                "input": (c.input or "")[:200], "response": (c.response or "")[:200],
+                "error": (c.error or "")[:300], "k": c.k,
+                "pass_rate": c.pass_rate, "duration_ms": c.duration_ms,
+            })
+        total = len(rows)
+        return {
+            "run_id": run_id, "total": total, "defect_count": len(defects),
+            "by_class": by_class, "by_category": by_category, "defects": defects,
+        }
 
     async def save_case_set(self, name: str, version: str, source_path: str,
                             hashv: str, meta: Optional[dict] = None) -> str:
@@ -401,6 +540,28 @@ class Database:
                                for t in trial_rows],
                 })
             return out
+
+    async def delete_run(self, run_id: str) -> bool:
+        """级联删除一次评测运行及其全部关联数据（cases/graders/trials/traces）。
+
+        SQLite 默认不强制外键 ON DELETE CASCADE，故显式按依赖顺序清理，
+        避免遗留孤儿行。返回 False 表示 run 不存在。
+        """
+        async with self.Session() as s:
+            run = (await s.execute(select(Run).where(Run.id == run_id))).scalar_one_or_none()
+            if run is None:
+                return False
+            case_ids = (await s.execute(
+                select(CaseRow.id).where(CaseRow.run_id == run_id)
+            )).scalars().all()
+            if case_ids:
+                await s.execute(delete(GraderRow).where(GraderRow.case_row_id.in_(case_ids)))
+                await s.execute(delete(TrialRow).where(TrialRow.case_row_id.in_(case_ids)))
+            await s.execute(delete(CaseRow).where(CaseRow.run_id == run_id))
+            await s.execute(delete(TraceRow).where(TraceRow.run_id == run_id))
+            await s.delete(run)
+            await s.commit()
+            return True
 
     async def list_case_sets(self) -> list[dict]:
         async with self.Session() as s:
@@ -671,6 +832,135 @@ class Database:
             await s.commit()
         return n
 
+    # ---- R5：执行提供方（被测对象）自定义配置 CRUD ----
+    async def save_provider_config(self, name: str, display_name: str, kind: str,
+                                   base_url: str = "", api_key: str = "", model: str = "",
+                                   extra: Optional[dict] = None, pid: Optional[str] = None) -> str:
+        pid = pid or str(uuid.uuid4())
+        async with self.Session() as s:
+            existing = (await s.execute(
+                select(ProviderConfig).where(ProviderConfig.name == name))).scalar_one_or_none()
+            if existing:
+                existing.display_name = display_name
+                existing.kind = kind
+                existing.base_url = base_url
+                existing.model = model
+                existing.extra_json = extra or {}
+                existing.updated_at = time.time()
+                if api_key:  # 仅传入非空才覆盖（避免清空已有 key）
+                    existing.api_key = api_key
+            else:
+                s.add(ProviderConfig(id=pid, name=name, display_name=display_name, kind=kind,
+                                     base_url=base_url, api_key=api_key, model=model,
+                                     extra_json=extra or {}))
+            await s.commit()
+        return pid
+
+    async def list_provider_configs(self) -> list:
+        async with self.Session() as s:
+            rows = (await s.execute(
+                select(ProviderConfig).order_by(ProviderConfig.created_at.desc()))).scalars().all()
+            return [_cfg_to_dict(r) for r in rows]
+
+    async def get_provider_config(self, name: str) -> Optional[dict]:
+        async with self.Session() as s:
+            r = (await s.execute(
+                select(ProviderConfig).where(ProviderConfig.name == name))).scalar_one_or_none()
+            return _cfg_to_dict(r) if r else None
+
+    async def delete_provider_config(self, name: str) -> bool:
+        async with self.Session() as s:
+            r = (await s.execute(
+                select(ProviderConfig).where(ProviderConfig.name == name))).scalar_one_or_none()
+            if r is None:
+                return False
+            await s.delete(r)
+            await s.commit()
+            return True
+
+    # ---- R6：Judge 通道（评测用 LLM）自定义配置 CRUD ----
+    async def save_judge_config(self, name: str, display_name: str, kind: str,
+                                base_url: str = "", api_key: str = "", model: str = "",
+                                extra: Optional[dict] = None, jid: Optional[str] = None) -> str:
+        jid = jid or str(uuid.uuid4())
+        async with self.Session() as s:
+            existing = (await s.execute(
+                select(JudgeConfig).where(JudgeConfig.name == name))).scalar_one_or_none()
+            if existing:
+                existing.display_name = display_name
+                existing.kind = kind
+                existing.base_url = base_url
+                existing.model = model
+                existing.extra_json = extra or {}
+                existing.updated_at = time.time()
+                if api_key:
+                    existing.api_key = api_key
+            else:
+                s.add(JudgeConfig(id=jid, name=name, display_name=display_name, kind=kind,
+                                  base_url=base_url, api_key=api_key, model=model,
+                                  extra_json=extra or {}))
+            await s.commit()
+        return jid
+
+    async def list_judge_configs(self) -> list:
+        async with self.Session() as s:
+            rows = (await s.execute(
+                select(JudgeConfig).order_by(JudgeConfig.created_at.desc()))).scalars().all()
+            return [_cfg_to_dict(r) for r in rows]
+
+    async def get_judge_config(self, name: str) -> Optional[dict]:
+        async with self.Session() as s:
+            r = (await s.execute(
+                select(JudgeConfig).where(JudgeConfig.name == name))).scalar_one_or_none()
+            return _cfg_to_dict(r) if r else None
+
+    async def delete_judge_config(self, name: str) -> bool:
+        async with self.Session() as s:
+            r = (await s.execute(
+                select(JudgeConfig).where(JudgeConfig.name == name))).scalar_one_or_none()
+            if r is None:
+                return False
+            await s.delete(r)
+            await s.commit()
+            return True
+
+
+class ProviderConfig(Base):
+    """执行提供方（被测对象）自定义配置（R5）：替代仅下拉框选择。
+
+    kind 指向 providers 注册表中的已实现类（mock/deepseek/local_agent/qwen/zhipu/
+    domestic_gateway 等）；base_url/api_key/model/extra 作为构造参数注入。
+    """
+    __tablename__ = "provider_configs"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(64), unique=True, nullable=False)   # 下拉框使用的 key
+    display_name = Column(String(255), nullable=False)
+    kind = Column(String(64), nullable=False)                 # 注册表 key
+    base_url = Column(Text)
+    api_key = Column(Text)
+    model = Column(String(128))
+    extra_json = Column(JSON)
+    created_at = Column(Float, default=time.time)
+    updated_at = Column(Float, default=time.time)
+
+
+class JudgeConfig(Base):
+    """Judge 通道（评测用 LLM）自定义配置（R6）：用户自定义，替代仅内置模型。
+
+    结构与 ProviderConfig 一致；kind 同样指向 providers 注册表中的 LLM 类。
+    """
+    __tablename__ = "judge_configs"
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String(64), unique=True, nullable=False)
+    display_name = Column(String(255), nullable=False)
+    kind = Column(String(64), nullable=False)
+    base_url = Column(Text)
+    api_key = Column(Text)
+    model = Column(String(128))
+    extra_json = Column(JSON)
+    created_at = Column(Float, default=time.time)
+    updated_at = Column(Float, default=time.time)
+
 
 def _sha16(content: str) -> str:
     import hashlib
@@ -682,6 +972,19 @@ def _asset_to_dict(r: AssetVersion) -> dict:
         "id": r.id, "kind": r.kind, "name": r.name, "version": r.version,
         "content_hash": r.content_hash, "content": r.content,
         "created_at": r.created_at, "meta": r.meta_json or {},
+    }
+
+
+def _cfg_to_dict(r) -> dict:
+    """ProviderConfig / JudgeConfig → dict；api_key 脱敏（仅回显是否设置 + 末 4 位）。"""
+    key = r.api_key or ""
+    return {
+        "id": r.id, "name": r.name, "display_name": r.display_name, "kind": r.kind,
+        "base_url": r.base_url or "", "model": r.model or "",
+        "extra": r.extra_json or {},
+        "api_key_set": bool(key),
+        "api_key_masked": ("****" + key[-4:]) if len(key) >= 4 else ("****" if key else ""),
+        "created_at": r.created_at, "updated_at": r.updated_at,
     }
 
 
@@ -769,6 +1072,10 @@ def _run_to_dict(r: Run) -> dict:
         "cost_used_usd": r.cost_used_usd,
         "budget_aborted": r.budget_aborted,
         "attachments": r.attachments_json or [],
+        # R7 / R1：运行态与起止时间（NULL status 视为 completed，兼容旧库）
+        "status": r.status or "completed",
+        "start_time": r.start_time,
+        "end_time": r.end_time,
         # O14：回链 meta（含 wb_meta：contract_id / callback_url），供 Web 控制台双向回查。
         # Run 表无独立 meta 列，wb_meta 随运行配置落库于 config_json，此处提取回显。
         "meta": {"wb_meta": (r.config_json or {}).get("wb_meta")},
